@@ -1,0 +1,14 @@
+# main
+Flask
+Flask-GraphQL
+SQLAlchemy
+psycopg2
+graphene
+graphene-sqlalchemy
+
+# dev
+pre-commit
+black
+flake8
+
+
