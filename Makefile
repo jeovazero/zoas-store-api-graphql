@@ -21,3 +21,6 @@ start:
 
 freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
+
+_install:
+	pip3.7 install -r $(REQ)
