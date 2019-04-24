@@ -1,6 +1,13 @@
 from flask import Flask
 from flask_graphql import GraphQLView
 from _graphql import schema
+from db import seed
+import os
+
+
+ENV = os.getenv("ENV", "test")
+if ENV == "test":
+    seed()
 
 
 app = Flask(__name__)
