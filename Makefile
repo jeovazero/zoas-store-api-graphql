@@ -22,5 +22,8 @@ start:
 freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
 
+test:
+	$(ACT); pytest
+
 _install:
 	pip3.7 install -r $(REQ)

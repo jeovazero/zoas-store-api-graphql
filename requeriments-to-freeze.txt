@@ -10,5 +10,4 @@ graphene-sqlalchemy
 pre-commit
 black
 flake8
-
-
+pytest
