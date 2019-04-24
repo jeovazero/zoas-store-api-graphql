@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_graphql import GraphQLView
-from _graphql import schema
-from db import seed
+from .graphql import schema
+from .db import seed
 import os
 
 

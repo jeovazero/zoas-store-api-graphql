@@ -1,6 +1,6 @@
 from graphene import Schema, ObjectType, List
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from db import ShirtModel
+from ..db import ShirtModel
 
 print(ShirtModel)
 
