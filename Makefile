@@ -17,13 +17,16 @@ upgradeInstall:
 	$(ACT); $(FREEZE)
 
 start:
-	$(ACT); FLASK_APP=src/app.py FLASK_DEBUG=1 python3.7 -m flask run
+	$(ACT); FLASK_APP=flaskr/app.py FLASK_ENV=development python3.7 -m flask run
 
 freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
 
 test:
-	$(ACT); pytest
+	$(ACT); FLASK_TESTING=True pytest -v
 
 _install:
 	pip3.7 install -r $(REQ)
+
+gunicorn: # TESTING only to seed the database, remove it in for production :)
+	$(ACT); FLASK_TESTING=True gunicorn --bind 0.0.0.0:5000 flaskr.app:app

@@ -5,6 +5,7 @@ SQLAlchemy==1.3.3
 psycopg2-binary==2.8.2
 graphene==2.1.3
 graphene-sqlalchemy==2.1.2
+gunicorn==19.9.0
 
 # dev
 pre-commit==1.15.2
@@ -41,6 +42,6 @@ Rx==1.6.1
 singledispatch==3.4.0.3
 six==1.12.0
 toml==0.10.0
-virtualenv==16.4.3
+virtualenv==16.5.0
 Werkzeug==0.15.2
 zipp==0.3.3

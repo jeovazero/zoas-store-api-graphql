@@ -1,5 +1,5 @@
 import pytest
-from src import app
+from flaskr.app import app
 
 
 @pytest.fixture
@@ -7,11 +7,66 @@ def client():
     return app.test_client()
 
 
-def test_req(client):
-    resp = client.post("/graphql", json={"query": "query { shirts { id } }"})
+def test_query_products(client):
+    resp = client.post(
+        "/graphql",
+        json={
+            "query": """
+            query {
+                products {
+                    hasMoreItems
+                    items {
+                        id
+                        title
+                        photos {
+                            url
+                        }
+                        price
+                        description
+                        avaliable
+                        avaliability
+                    }
+                }
+            }
+            """
+        },
+    )
 
     json = resp.get_json()
 
-    len_shirts = len(json["data"]["shirts"])
+    products = json["data"]["products"]
+    assert len(products["items"]) == 4
+    assert products["hasMoreItems"] is False
 
-    assert len_shirts == 4
+
+def test_query_products_pagination(client):
+    resp = client.post(
+        "/graphql",
+        json={
+            "query": """
+            query {
+                products(offset: 1, limit: 2) {
+                    hasMoreItems
+                    items {
+                        id
+                        title
+                        photos {
+                            url
+                        }
+                        price
+                        description
+                        avaliable
+                        avaliability
+                    }
+                }
+            }
+            """
+        },
+    )
+
+    json = resp.get_json()
+
+    products = json["data"]["products"]
+
+    assert len(products["items"]) == 2
+    assert products["hasMoreItems"] is True

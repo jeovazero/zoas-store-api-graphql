@@ -12,7 +12,8 @@ services:
       - POSTGRES_DB=test_db
       - POSTGRES_PORT=5432
       - POSTGRES_HOST=postgres
-      - ENV=test
+      - FLASK_TESTING=True
+      - FLASK_ENV=development
     depends_on:
       - postgres
 
