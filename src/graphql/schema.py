@@ -1,21 +1,42 @@
-from graphene import Schema, ObjectType, List
+from graphene import Schema, ObjectType, List, Field, Int, Boolean
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from ..db import ShirtModel
+from ..db import ProductModel, PhotoModel
 
-print(ShirtModel)
+print(ProductModel)
 
 
-class Shirt(SQLAlchemyObjectType):
+class Item(SQLAlchemyObjectType):
     class Meta:
-        model = ShirtModel
+        model = ProductModel
+
+
+class Photo(SQLAlchemyObjectType):
+    class Meta:
+        model = PhotoModel
+        only_fields = ("url",)
+
+
+class Products(ObjectType):
+    items = List(Item)
+    has_more_items = Boolean()
 
 
 class Query(ObjectType):
-    shirts = List(Shirt)
+    products = Field(
+        Products, offset=Int(default_value=0), limit=Int(default_value=10)
+    )
 
-    def resolve_shirts(self, info):
-        query = Shirt.get_query(info)
-        return query.all()
+    def resolve_products(self, info, **kwargs):
+        offset = kwargs.get("offset", 0)
+        limit = kwargs.get("limit", 10)
+
+        query = Item.get_query(info)
+        total = query.count()
+
+        items = query.offset(offset).limit(limit).all()
+        has_more = (offset + limit) < total
+
+        return Products(items=items, has_more_items=has_more)
 
 
-schema = Schema(query=Query, types=[Shirt])
+schema = Schema(query=Query, types=[Products])
