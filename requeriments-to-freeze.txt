@@ -5,6 +5,7 @@ SQLAlchemy
 psycopg2-binary
 graphene
 graphene-sqlalchemy
+gunicorn
 
 # dev
 pre-commit

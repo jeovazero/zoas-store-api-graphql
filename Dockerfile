@@ -10,7 +10,6 @@ COPY ./Makefile /zoas-api
 
 RUN make _install
 
-RUN pip3.7 install gunicorn
-
 EXPOSE 5000
+
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flaskr.app:app"]
