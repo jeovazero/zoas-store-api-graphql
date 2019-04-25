@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, Float, Boolean
 from sqlalchemy.orm import relationship
-from .base import Base
+from ..base import Base
 
 
 class ProductModel(Base):

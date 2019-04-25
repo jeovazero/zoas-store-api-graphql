@@ -1,8 +1,6 @@
 from graphene import Schema, ObjectType, List, Field, Int, Boolean
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from ..db import ProductModel, PhotoModel
-
-print(ProductModel)
+from ..database import ProductModel, PhotoModel
 
 
 class Item(SQLAlchemyObjectType):

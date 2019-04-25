@@ -1,5 +1,4 @@
-from .product import ProductModel
-from .photo import PhotoModel
+from .models import ProductModel, PhotoModel
 from .base import Session, engine, Base
 
 sticker = (

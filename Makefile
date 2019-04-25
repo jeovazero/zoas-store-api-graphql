@@ -17,7 +17,7 @@ upgradeInstall:
 	$(ACT); $(FREEZE)
 
 start:
-	$(ACT); FLASK_APP=src/app.py FLASK_ENV=development python3.7 -m flask run
+	$(ACT); FLASK_APP=flaskr/app.py FLASK_ENV=development python3.7 -m flask run
 
 freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
@@ -27,3 +27,4 @@ test:
 
 _install:
 	pip3.7 install -r $(REQ)
+

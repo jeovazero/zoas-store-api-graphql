@@ -4,7 +4,7 @@ RUN apk add make postgresql-dev gcc musl-dev python3-dev
 
 WORKDIR /zoas-api
 
-COPY ./src /zoas-api
+COPY ./flaskr /zoas-api/flaskr
 COPY ./requeriments.txt /zoas-api
 COPY ./Makefile /zoas-api
 
@@ -13,4 +13,4 @@ RUN make _install
 RUN pip3.7 install gunicorn
 
 EXPOSE 5000
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flaskr.app:app"]
