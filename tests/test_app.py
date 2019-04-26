@@ -120,16 +120,55 @@ def test_mutation_delete_cart(client):
     assert json["data"]["deleteCart"]["confirmation"] == "success"
 
 
+def put_product_cart(client, pid, qtd):
+    return client.post(
+        "/graphql",
+        json={
+            "query": """
+            mutation {
+                putProductToCart(payload: {"""
+            f"productId: {pid}, quantity: {qtd}"
+            """}){
+                    productId
+                    quantity
+                    price
+                    photos {
+                        urls
+                    }
+                }
+            }
+            """
+        },
+    )
+
+
 def test_mutation_put_product_cart(client):
     resp1 = create_cart(client)
     assert len(get_session(resp1)[1]) > 1
+
+    resp2 = put_product_cart(client, pid=2, qtd=10)
+    json = resp2.get_json()
+
+    product_of_cart = json["data"]["putProductToCart"][0]
+    assert product_of_cart["productId"] == 2
+    assert product_of_cart["quantity"] == 10
+    assert product_of_cart["price"] == 12.88
+    assert len(product_of_cart["photos"]) == 2
+
+
+def test_query_get_cart(client):
+    resp1 = create_cart(client)
+    assert len(get_session(resp1)[1]) > 1
+
+    put_product_cart(client, pid=2, qtd=10)
+    put_product_cart(client, pid=1, qtd=20)
 
     resp2 = client.post(
         "/graphql",
         json={
             "query": """
-            mutation {
-                putProductToCart(payload: { productId: 2, quantity: 10 }){
+            query {
+                cart {
                     productId
                     quantity
                     price
@@ -143,8 +182,8 @@ def test_mutation_put_product_cart(client):
     )
 
     json = resp2.get_json()
-    product_of_cart = json["data"]["putProductToCart"][0]
-    assert product_of_cart["productId"] == 2
-    assert product_of_cart["quantity"] == 10
-    assert product_of_cart["price"] == 12.88
-    assert len(product_of_cart["photos"]) == 2
+    cart = json["data"]["cart"]
+
+    assert len(cart) == 2
+    assert cart[0]["productId"] is not None
+    assert cart[1]["productId"] is not None
