@@ -85,32 +85,36 @@ def create_cart(client):
     )
 
 
+def get_session(response):
+    cookie = response.headers["Set-Cookie"]
+    return cookie.split(";")[0].split("=")
+
+
 def test_mutation_create_cart(client):
     resp = create_cart(client)
     json = resp.get_json()
-    cookie = resp.headers["Set-Cookie"]
-    [session_name, session_value] = cookie.split(";")[0].split("=")
+    [session_name, session_value] = get_session(resp)
 
     assert len(session_value) > 1
     assert json["data"]["createCart"]["confirmation"] == "success"
 
 
-"""
 def test_mutation_delete_cart(client):
-    with client.session_transaction() as session:
-        session['u']='fake_cookie'
+    resp1 = create_cart(client)
+    assert len(get_session(resp1)[1]) > 1
 
-    resp = client.post(
+    resp2 = client.post(
         "/graphql",
         json={
-            "query": ""
+            "query": """
             mutation {
                 deleteCart { confirmation }
             }
-            ""
+            """
         },
     )
 
-    print(resp.headers['Set-Cookie'].split(';'))
-    assert len(resp.headers['Set-Cookie']) == 0
-"""
+    json = resp2.get_json()
+    [session_name, session_value] = get_session(resp2)
+    assert len(session_value) == 0
+    assert json["data"]["deleteCart"]["confirmation"] == "success"
