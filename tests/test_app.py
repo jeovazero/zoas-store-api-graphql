@@ -146,7 +146,7 @@ def test_mutation_put_product_cart(client):
     resp1 = create_cart(client)
     assert len(get_session(resp1)[1]) > 1
 
-    resp2 = put_product_cart(client, pid=2, qtd=10)
+    resp2 = put_product_cart(client, pid="2", qtd=10)
     json = resp2.get_json()
 
     product_of_cart = json["data"]["putProductToCart"][0]
@@ -160,8 +160,8 @@ def test_query_get_cart(client):
     resp1 = create_cart(client)
     assert len(get_session(resp1)[1]) > 1
 
-    put_product_cart(client, pid=2, qtd=10)
-    put_product_cart(client, pid=1, qtd=20)
+    put_product_cart(client, pid="2", qtd=10)
+    put_product_cart(client, pid="1", qtd=20)
 
     resp2 = client.post(
         "/graphql",
@@ -187,3 +187,39 @@ def test_query_get_cart(client):
     assert len(cart) == 2
     assert cart[0]["productId"] is not None
     assert cart[1]["productId"] is not None
+
+
+def test_mutation_remove_product_cart(client):
+    resp1 = create_cart(client)
+    assert len(get_session(resp1)[1]) > 1
+
+    put_product_cart(client, pid="2", qtd=10)
+    put_product_cart(client, pid="1", qtd=20)
+
+    resp2 = client.post(
+        "/graphql",
+        json={
+            "query": """
+            mutation {
+                removeProductOfCart(productId: "2") {
+                    productId
+                    quantity
+                    price
+                    photos {
+                        urls
+                    }
+                }
+            }
+            """
+        },
+    )
+
+    json = resp2.get_json()
+    cart = json["data"]["removeProductOfCart"]
+    product = cart[0]
+
+    assert len(cart) == 1
+    assert product["productId"] == 1
+    assert product["quantity"] == 20
+    assert product["price"] == 2
+    assert len(product["photos"]) == 1
