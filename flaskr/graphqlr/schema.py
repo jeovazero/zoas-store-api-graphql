@@ -50,7 +50,8 @@ class DeleteCart(MutationType):
     def mutate(self, info):
         print("DELETE PREVIOUS SESSION", session)
         sid = str(session["u"])
-        DbSession.query(CartModel).filter(CartModel.id == sid).delete()
+        cart = DbSession.query(CartModel).filter(CartModel.id == sid).first()
+        DbSession.delete(cart)
         DbSession.commit()
         session.pop("u", None)
         return DeleteCart(confirmation="success")
