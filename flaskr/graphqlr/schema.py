@@ -139,6 +139,7 @@ class Query(ObjectType):
     products = Field(
         Products, offset=Int(default_value=0), limit=Int(default_value=10)
     )
+    cart = List(ProductCart)
 
     def resolve_products(self, info, **kwargs):
         offset = kwargs.get("offset", 0)
@@ -151,6 +152,11 @@ class Query(ObjectType):
         has_more = (offset + limit) < total
 
         return Products(items=items, has_more_items=has_more)
+
+    def resolve_cart(self, info):
+        sid = str(session["u"])
+        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
+        return resolve_list_product_cart(cart.products)
 
 
 class Mutations(ObjectType):
