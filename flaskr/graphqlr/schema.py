@@ -135,6 +135,24 @@ class PutProductToCart(MutationType):
         return resolve_list_product_cart(cart.products)
 
 
+class RemoveProductOfCart(MutationType):
+    class Arguments:
+        product_id = String()
+
+    Output = List(ProductCart)
+
+    def mutate(self, info, **kwargs):
+        pid = kwargs.get("product_id")
+        sid = str(session["u"])
+        print("pid", pid, "sid", sid)
+        DbSession.query(ProductCartModel).filter(
+            ProductCartModel.cart_id == sid, ProductCartModel.product_id == pid
+        ).delete()
+        DbSession.commit()
+        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
+        return resolve_list_product_cart(cart.products)
+
+
 class Query(ObjectType):
     products = Field(
         Products, offset=Int(default_value=0), limit=Int(default_value=10)
@@ -163,6 +181,7 @@ class Mutations(ObjectType):
     create_cart = CreateCart.Field()
     delete_cart = DeleteCart.Field()
     put_product_to_cart = PutProductToCart.Field()
+    remove_product_of_cart = RemoveProductOfCart.Field()
 
 
 schema = Schema(query=Query, mutation=Mutations, types=[Products, CreateCart])
