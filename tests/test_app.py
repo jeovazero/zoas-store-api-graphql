@@ -127,13 +127,13 @@ def put_product_cart(client, pid, qtd):
             "query": """
             mutation {
                 putProductToCart(payload: {"""
-            f"productId: {pid}, quantity: {qtd}"
+            f'productId: "{pid}", quantity: {qtd}'
             """}){
                     productId
                     quantity
                     price
                     photos {
-                        urls
+                        url
                     }
                 }
             }
@@ -173,7 +173,7 @@ def test_query_get_cart(client):
                     quantity
                     price
                     photos {
-                        urls
+                        url
                     }
                 }
             }
@@ -206,7 +206,7 @@ def test_mutation_remove_product_cart(client):
                     quantity
                     price
                     photos {
-                        urls
+                        url
                     }
                 }
             }
