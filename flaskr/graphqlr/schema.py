@@ -37,7 +37,7 @@ class CreateCart(MutationType):
     confirmation = String()
 
     def mutate(self, info):
-        print("CREATE PREVIOUS SESSION: ", session)
+        # print("CREATE PREVIOUS SESSION: ", session)
         session["u"] = uuid.uuid4()
         DbSession.add(CartModel(id=session["u"]))
         DbSession.commit()
@@ -48,7 +48,7 @@ class DeleteCart(MutationType):
     confirmation = String()
 
     def mutate(self, info):
-        print("DELETE PREVIOUS SESSION", session)
+        # print("DELETE PREVIOUS SESSION", session)
         sid = str(session["u"])
         cart = DbSession.query(CartModel).filter(CartModel.id == sid).first()
         DbSession.delete(cart)
@@ -89,10 +89,12 @@ def resolve_product_cart(prodcart):
     )
 
 
-def upsert_product_cart(pid, product, quantity):
+def upsert_product_cart(sid, pid, product, quantity):
     product_cart_query = (
         DbSession.query(ProductCartModel)
-        .filter(ProductCartModel.product_id == pid)
+        .filter(
+            ProductCartModel.cart_id == sid, ProductCartModel.product_id == pid
+        )
         .all()
     )
 
@@ -110,23 +112,23 @@ class PutProductToCart(MutationType):
     Output = List(ProductCart)
 
     def mutate(self, info, **kwargs):
-        print("PUT PRODUCTS SESSION: ", session)
+        # print("PUT PRODUCTS SESSION: ", session)
 
         payload = kwargs.get("payload", {})
         pid = str(payload.get("productId"))
         quantity = payload.get("quantity")
 
-        print("pid", pid)
+        # print("pid", pid)
         product = (
             DbSession.query(ProductModel).filter(ProductModel.id == pid).one()
         )
 
-        product_cart = upsert_product_cart(pid, product, quantity)
-
-        print("PUT PRODUCTS SESSION: ", session)
         sid = str(session["u"])
+        product_cart = upsert_product_cart(sid, pid, product, quantity)
+
+        # print("PUT PRODUCTS SESSION: ", session)
         cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
-        print("CArt", cart.products)
+        # print("CArt", cart.products)
         cart.products.append(product_cart)
         DbSession.add(product_cart)
         DbSession.add(cart)
@@ -144,7 +146,7 @@ class RemoveProductOfCart(MutationType):
     def mutate(self, info, **kwargs):
         pid = kwargs.get("product_id")
         sid = str(session["u"])
-        print("pid", pid, "sid", sid)
+        # print("pid", pid, "sid", sid)
         DbSession.query(ProductCartModel).filter(
             ProductCartModel.cart_id == sid, ProductCartModel.product_id == pid
         ).delete()
