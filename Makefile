@@ -1,6 +1,6 @@
 ACT=. env/bin/activate
-REQF=requeriments-to-freeze.txt
-REQ=requeriments.txt
+REQF=requirements-to-freeze.txt
+REQ=requirements.txt
 FREEZE=pip3.7 freeze -r $(REQF) > $(REQ)
 
 init: createenv install
@@ -23,7 +23,7 @@ freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
 
 test:
-	$(ACT); FLASK_TESTING=True pytest -v
+	$(ACT); FLASK_TESTING=True pytest -vs
 
 _install:
 	pip3.7 install -r $(REQ)

@@ -9,9 +9,9 @@ FROM build as deps
 
 WORKDIR /packages
 
-COPY ./requeriments.txt .
+COPY ./requirements.txt .
 
-RUN pip3.7 install -r requeriments.txt --prefix=/packages
+RUN pip3.7 install -r requirements.txt --prefix=/packages
 
 
 FROM pyimage
