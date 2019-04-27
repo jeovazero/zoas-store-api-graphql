@@ -1,6 +1,10 @@
-from graphene import Schema, ObjectType, List, Field, Int, Boolean
+from graphene import Schema, ObjectType, List, Field, Int, Boolean, String
+from graphene import Mutation as MutationType
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from ..database import ProductModel, PhotoModel
+from ..database import ProductModel, PhotoModel, CartModel
+from ..database import Session as DbSession
+from flask import session
+import uuid
 
 
 class Item(SQLAlchemyObjectType):
@@ -17,6 +21,17 @@ class Photo(SQLAlchemyObjectType):
 class Products(ObjectType):
     items = List(Item)
     has_more_items = Boolean()
+
+
+class CreateCart(MutationType):
+    confirmation = String()
+
+    def mutate(self, info):
+        print("CREATE PREVIOUS SESSION: ", session)
+        session["u"] = uuid.uuid4()
+        DbSession.add(CartModel(id=session["u"]))
+        DbSession.commit()
+        return CreateCart(confirmation="success")
 
 
 class Query(ObjectType):
@@ -37,4 +52,8 @@ class Query(ObjectType):
         return Products(items=items, has_more_items=has_more)
 
 
-schema = Schema(query=Query, types=[Products])
+class Mutations(ObjectType):
+    create_cart = CreateCart.Field()
+
+
+schema = Schema(query=Query, mutation=Mutations, types=[Products, CreateCart])
