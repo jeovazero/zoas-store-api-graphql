@@ -1,7 +1,17 @@
-from graphene import Schema, ObjectType, List, Field, Int, Boolean, String
+from graphene import (
+    Schema,
+    ObjectType,
+    List,
+    Field,
+    Int,
+    Boolean,
+    String,
+    Float,
+    InputObjectType,
+)
 from graphene import Mutation as MutationType
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from ..database import ProductModel, PhotoModel, CartModel
+from ..database import ProductModel, PhotoModel, CartModel, ProductCartModel
 from ..database import Session as DbSession
 from flask import session
 import uuid
@@ -46,6 +56,84 @@ class DeleteCart(MutationType):
         return DeleteCart(confirmation="success")
 
 
+class PutProductInput(InputObjectType):
+    productId = String()
+    quantity = Int()
+
+
+class ProductCart(ObjectType):
+    product_id = Int()
+    title = String()
+    description = String()
+    price = Float()
+    quantity = Int()
+    photos = List(Photo)
+
+
+def resolve_list_product_cart(products):
+    ans = []
+    for p in products:
+        ans.append(resolve_product_cart(p))
+    return ans
+
+
+def resolve_product_cart(prodcart):
+    return ProductCart(
+        product_id=prodcart.product_id,
+        title=prodcart.product.title,
+        description=prodcart.product.description,
+        price=prodcart.product.price,
+        quantity=prodcart.quantity,
+        photos=prodcart.product.photos,
+    )
+
+
+def upsert_product_cart(pid, product, quantity):
+    product_cart_query = (
+        DbSession.query(ProductCartModel)
+        .filter(ProductCartModel.product_id == pid)
+        .all()
+    )
+
+    if len(product_cart_query) == 0:
+        return ProductCartModel(product=product, quantity=quantity)
+    product_cart = product_cart_query[0]
+    product_cart.quantity = quantity
+    return product_cart
+
+
+class PutProductToCart(MutationType):
+    class Arguments:
+        payload = PutProductInput(required=True)
+
+    Output = List(ProductCart)
+
+    def mutate(self, info, **kwargs):
+        print("PUT PRODUCTS SESSION: ", session)
+
+        payload = kwargs.get("payload", {})
+        pid = str(payload.get("productId"))
+        quantity = payload.get("quantity")
+
+        print("pid", pid)
+        product = (
+            DbSession.query(ProductModel).filter(ProductModel.id == pid).one()
+        )
+
+        product_cart = upsert_product_cart(pid, product, quantity)
+
+        print("PUT PRODUCTS SESSION: ", session)
+        sid = str(session["u"])
+        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
+        print("CArt", cart.products)
+        cart.products.append(product_cart)
+        DbSession.add(product_cart)
+        DbSession.add(cart)
+        DbSession.commit()
+        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
+        return resolve_list_product_cart(cart.products)
+
+
 class Query(ObjectType):
     products = Field(
         Products, offset=Int(default_value=0), limit=Int(default_value=10)
@@ -67,6 +155,7 @@ class Query(ObjectType):
 class Mutations(ObjectType):
     create_cart = CreateCart.Field()
     delete_cart = DeleteCart.Field()
+    put_product_to_cart = PutProductToCart.Field()
 
 
 schema = Schema(query=Query, mutation=Mutations, types=[Products, CreateCart])
