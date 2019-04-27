@@ -34,6 +34,18 @@ class CreateCart(MutationType):
         return CreateCart(confirmation="success")
 
 
+class DeleteCart(MutationType):
+    confirmation = String()
+
+    def mutate(self, info):
+        print("DELETE PREVIOUS SESSION", session)
+        sid = str(session["u"])
+        DbSession.query(CartModel).filter(CartModel.id == sid).delete()
+        DbSession.commit()
+        session.pop("u", None)
+        return DeleteCart(confirmation="success")
+
+
 class Query(ObjectType):
     products = Field(
         Products, offset=Int(default_value=0), limit=Int(default_value=10)
@@ -54,6 +66,7 @@ class Query(ObjectType):
 
 class Mutations(ObjectType):
     create_cart = CreateCart.Field()
+    delete_cart = DeleteCart.Field()
 
 
 schema = Schema(query=Query, mutation=Mutations, types=[Products, CreateCart])
