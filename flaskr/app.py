@@ -15,6 +15,13 @@ is_graphiql = ENV == "development"
 
 app = Flask(__name__)
 
+app.config["SECRET_KEY"] = os.getenv(
+    "SECRET_KEY",
+    "W1r+xoQVRHUeQowoaPysNq6vO3badR1tOPTHwlA46rZKSVLjok8jiG3ue3vE3VU2G/M=",
+)
+
+app.config["SESSION_COOKIE_NAME"] = "80l4ch4"
+
 app.add_url_rule(
     "/graphql",
     view_func=GraphQLView.as_view(
