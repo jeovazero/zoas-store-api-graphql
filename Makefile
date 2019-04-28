@@ -25,6 +25,9 @@ freeze:
 test:
 	$(ACT); FLASK_TESTING=True pytest -vs
 
+testCoverage:
+	${ACT}; FLASK_TESTING=True pytest -vs --cov=flaskr
+
 _install:
 	pip3.7 install -r $(REQ)
 
