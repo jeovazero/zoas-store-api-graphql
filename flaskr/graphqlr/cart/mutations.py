@@ -1,11 +1,17 @@
 from graphene import List, String
 from graphene import Mutation as MutationType
-from flaskr.database import ProductModel, CartModel, ProductCartModel
+from flaskr.database import CartModel
 from flaskr.database import Session as DbSession
 from flask import session
 import uuid
 from .types import PutProductInput, ProductCart
-from .helpers import upsert_product_cart, resolve_list_product_cart, get_cart
+from .helpers import (
+    upsert_product_cart,
+    resolve_list_product_cart,
+    get_cart,
+    get_product,
+    get_product_cart,
+)
 
 
 class CreateCart(MutationType):
@@ -46,9 +52,7 @@ class PutProductToCart(MutationType):
         quantity = payload.get("quantity")
 
         # print("pid", pid)
-        product = (
-            DbSession.query(ProductModel).filter(ProductModel.id == pid).one()
-        )
+        product = get_product(pid)
 
         sid = str(session["u"])
         product_cart = upsert_product_cart(sid, pid, product, quantity)
@@ -76,8 +80,7 @@ class RemoveProductOfCart(MutationType):
         cart = get_cart(sid)
 
         # print("pid", pid, "sid", sid)
-        DbSession.query(ProductCartModel).filter(
-            ProductCartModel.cart_id == sid, ProductCartModel.product_id == pid
-        ).delete()
+        product_cart = get_product_cart(sid, pid)
+        DbSession.delete(product_cart)
         DbSession.commit()
         return resolve_list_product_cart(cart.products)
