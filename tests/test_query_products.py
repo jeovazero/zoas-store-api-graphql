@@ -1,12 +1,3 @@
-import pytest
-from flaskr.app import app
-
-
-@pytest.fixture
-def client():
-    return app.test_client()
-
-
 def test_query_products(client):
     resp = client.post(
         "/graphql",
