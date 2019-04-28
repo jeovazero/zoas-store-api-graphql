@@ -77,3 +77,27 @@ def remove_product_cart(client, pid):
             """
         },
     )
+
+
+def get_product(client, pid):
+    return client.post(
+        "/graphql",
+        json={
+            "query": """
+            query {"""
+            f'product(productId: "{pid}")'
+            """{
+                    id
+                    title
+                    photos {
+                        url
+                    }
+                    price
+                    description
+                    avaliable
+                    avaliability
+                }
+            }
+            """
+        },
+    )
