@@ -53,7 +53,7 @@ def test_invalid_id(client):
     put_product_cart(client, pid="2", qtd=10)
     put_product_cart(client, pid="1", qtd=20)
 
-    resp2 = remove_product_cart(client, pid="2")
+    resp2 = remove_product_cart(client, pid="9")
     json = resp2.get_json()
 
     assert json["data"]["removeProductOfCart"] is None
