@@ -23,12 +23,12 @@ def test_delete_cart(client):
 
 
 def test_invalid_session(client):
+    resp1 = create_cart(client)
+    assert len(get_session(resp1)[1]) > 1
+
     # Setting the invalid session id
     with client.session_transaction() as session:
         session["u"] = "fake_session"
-
-    resp1 = create_cart(client)
-    assert len(get_session(resp1)[1]) > 1
 
     resp2 = client.post(
         "/graphql",
@@ -43,7 +43,7 @@ def test_invalid_session(client):
 
     json = resp2.get_json()
 
-    assert json["data"] is None
+    assert json["data"]["deleteCart"] is None
     assert json["errors"] is not None
     assert (
         json["errors"][0]["message"] == "The session has expired or is invalid"
