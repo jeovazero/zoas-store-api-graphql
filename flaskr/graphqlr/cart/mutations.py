@@ -11,6 +11,7 @@ from .helpers import (
     get_cart,
     get_product,
     get_product_cart,
+    validate_product_quantity,
 )
 
 
@@ -45,21 +46,17 @@ class PutProductToCart(MutationType):
     Output = List(ProductCart)
 
     def mutate(self, info, **kwargs):
-        # print("PUT PRODUCTS SESSION: ", session)
-
+        sid = str(session["u"])
+        cart = get_cart(sid)
         payload = kwargs.get("payload", {})
         pid = str(payload.get("productId"))
         quantity = payload.get("quantity")
 
-        # print("pid", pid)
         product = get_product(pid)
+        validate_product_quantity(product, quantity)
 
-        sid = str(session["u"])
         product_cart = upsert_product_cart(sid, pid, product, quantity)
 
-        # print("PUT PRODUCTS SESSION: ", session)
-        cart = get_cart(sid)
-        # print("CArt", cart.products)
         cart.products.append(product_cart)
         DbSession.add(product_cart)
         DbSession.add(cart)
@@ -79,7 +76,6 @@ class RemoveProductOfCart(MutationType):
         sid = str(session["u"])
         cart = get_cart(sid)
 
-        # print("pid", pid, "sid", sid)
         product_cart = get_product_cart(sid, pid)
         DbSession.delete(product_cart)
         DbSession.commit()

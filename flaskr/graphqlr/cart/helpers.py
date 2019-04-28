@@ -1,7 +1,11 @@
 from flaskr.database import Session as DbSession
 from flaskr.database import ProductCartModel, CartModel, ProductModel
 from .types import ProductCart
-from ..errors import INVALID_SESSION, INVALID_PRODUCT_ID
+from ..errors import (
+    INVALID_SESSION,
+    INVALID_PRODUCT_ID,
+    INVALID_PRODUCT_QUANTITY,
+)
 
 
 def resolve_list_product_cart(products):
@@ -68,3 +72,9 @@ def get_product_cart(sid, pid):
     if not product:
         raise Exception(INVALID_PRODUCT_ID)
     return product
+
+
+def validate_product_quantity(product, quantity):
+    avaliable = product.avaliable
+    if quantity <= 0 or quantity > avaliable:
+        raise Exception(INVALID_PRODUCT_QUANTITY)
