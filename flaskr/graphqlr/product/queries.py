@@ -1,5 +1,6 @@
-from graphene import Field, Int
+from graphene import Field, Int, String
 from .types import Products, Item
+from ..errors import INVALID_PRODUCT_ID
 
 
 def resolve_products(root, info, **kwargs):
@@ -14,6 +15,19 @@ def resolve_products(root, info, **kwargs):
 
     return Products(items=items, has_more_items=has_more)
 
+
+def resolve_product(root, info, **kwargs):
+    pid = kwargs.get("product_id")
+    print("pid", pid)
+    product = Item.get_query(info).filter_by(id=pid).first()
+    if not product:
+        raise Exception(INVALID_PRODUCT_ID)
+    return product
+
+
+product = Field(
+    Item, product_id=String(required=True), resolver=resolve_product
+)
 
 products = Field(
     Products,
