@@ -43,8 +43,7 @@ def test_invalid_quantity_zero(client):
     assert json["data"]["putProductToCart"] is None
     assert json["errors"] is not None
     assert json["errors"][0]["message"] == (
-        "The session has expired or is invalidThe product quantity "
-        "must be greater than zero and less than total"
+        "The product quantity must be greater than zero and less than total"
     )
 
 
@@ -58,8 +57,7 @@ def test_invalid_quantity_greater(client):
     assert json["data"]["putProductToCart"] is None
     assert json["errors"] is not None
     assert json["errors"][0]["message"] == (
-        "The session has expired or is invalidThe product quantity "
-        "must be greater than zero and less than total"
+        "The product quantity must be greater than zero and less than total"
     )
 
 
