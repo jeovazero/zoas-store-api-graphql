@@ -1,14 +1,12 @@
 from graphene import List
-from flaskr.database import CartModel
-from flaskr.database import Session as DbSession
 from flask import session
 from .types import ProductCart
-from .helpers import resolve_list_product_cart
+from .helpers import resolve_list_product_cart, get_cart
 
 
 def resolve_cart(root, info):
     sid = str(session["u"])
-    cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
+    cart = get_cart(sid)
     return resolve_list_product_cart(cart.products)
 
 

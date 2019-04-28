@@ -5,7 +5,7 @@ from flaskr.database import Session as DbSession
 from flask import session
 import uuid
 from .types import PutProductInput, ProductCart
-from .helpers import upsert_product_cart, resolve_list_product_cart
+from .helpers import upsert_product_cart, resolve_list_product_cart, get_cart
 
 
 class CreateCart(MutationType):
@@ -25,7 +25,7 @@ class DeleteCart(MutationType):
     def mutate(self, info):
         # print("DELETE PREVIOUS SESSION", session)
         sid = str(session["u"])
-        cart = DbSession.query(CartModel).filter(CartModel.id == sid).first()
+        cart = get_cart(sid)
         DbSession.delete(cart)
         DbSession.commit()
         session.pop("u", None)
@@ -54,7 +54,7 @@ class PutProductToCart(MutationType):
         product_cart = upsert_product_cart(sid, pid, product, quantity)
 
         # print("PUT PRODUCTS SESSION: ", session)
-        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
+        cart = get_cart(sid)
         # print("CArt", cart.products)
         cart.products.append(product_cart)
         DbSession.add(product_cart)
@@ -73,10 +73,11 @@ class RemoveProductOfCart(MutationType):
     def mutate(self, info, **kwargs):
         pid = kwargs.get("product_id")
         sid = str(session["u"])
+        cart = get_cart(sid)
+
         # print("pid", pid, "sid", sid)
         DbSession.query(ProductCartModel).filter(
             ProductCartModel.cart_id == sid, ProductCartModel.product_id == pid
         ).delete()
         DbSession.commit()
-        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
         return resolve_list_product_cart(cart.products)

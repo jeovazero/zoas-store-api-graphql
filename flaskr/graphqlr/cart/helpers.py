@@ -1,6 +1,7 @@
 from flaskr.database import Session as DbSession
-from flaskr.database import ProductCartModel
+from flaskr.database import ProductCartModel, CartModel
 from .types import ProductCart
+from ..errors import INVALID_SESSION
 
 
 def resolve_list_product_cart(products):
@@ -35,3 +36,10 @@ def upsert_product_cart(sid, pid, product, quantity):
     product_cart = product_cart_query[0]
     product_cart.quantity = quantity
     return product_cart
+
+
+def get_cart(sid):
+    cart = DbSession.query(CartModel).filter(CartModel.id == sid).first()
+    if not cart:
+        raise Exception(INVALID_SESSION)
+    return cart
