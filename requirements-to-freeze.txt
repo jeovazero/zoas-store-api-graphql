@@ -6,6 +6,7 @@ psycopg2-binary
 graphene
 graphene-sqlalchemy
 gunicorn
+Flask-Cors
 
 # dev
 pre-commit
