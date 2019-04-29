@@ -5,6 +5,8 @@ from ..errors import (
     INVALID_SESSION,
     INVALID_PRODUCT_ID,
     INVALID_PRODUCT_QUANTITY,
+    INVALID_CREDIT_CARD,
+    LACK_OF_STOCK,
 )
 
 
@@ -78,3 +80,39 @@ def validate_product_quantity(product, quantity):
     avaliable = product.avaliable
     if quantity <= 0 or quantity > avaliable:
         raise Exception(INVALID_PRODUCT_QUANTITY)
+
+
+def validate_credit_card(card):
+    # Luhn algorithm
+    if len(card) != 16:
+        raise Exception(INVALID_CREDIT_CARD)
+    s = 0
+    for i in range(0, len(card)):
+        v = ord(card[i]) - ord("0")
+        if i & 1 == 1:
+            s += v
+        else:
+            s += (v * 2) % 9
+    if not (s % 10 == 0):
+        raise Exception(INVALID_CREDIT_CARD)
+
+
+def pay_products_cart(sid):
+    products_cart = (
+        DbSession.query(ProductCartModel)
+        .filter(ProductCartModel.cart_id == sid)
+        .all()
+    )
+    total = 0.0
+    for prod_cart in products_cart:
+        product = prod_cart.product
+        if product.avaliable >= prod_cart.quantity:
+            total += prod_cart.quantity * product.price
+            product.avaliable -= prod_cart.quantity
+            product.avaliability = product.avaliable != 0
+            DbSession.add(product)
+            DbSession.delete(prod_cart)
+        else:
+            raise Exception(LACK_OF_STOCK.format(product.title))
+    DbSession.commit()
+    return total
