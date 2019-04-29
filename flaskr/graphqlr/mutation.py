@@ -4,6 +4,7 @@ from .cart.mutations import (
     DeleteCart,
     PutProductToCart,
     RemoveProductOfCart,
+    PayCart,
 )
 
 
@@ -12,3 +13,4 @@ class Mutations(ObjectType):
     delete_cart = DeleteCart.Field()
     put_product_to_cart = PutProductToCart.Field()
     remove_product_of_cart = RemoveProductOfCart.Field()
+    pay_cart = PayCart.Field()
