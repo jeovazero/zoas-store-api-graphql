@@ -31,8 +31,12 @@ def get_cart(client):
     )
 
 
+def get_cookie(response):
+    return response.headers["Set-Cookie"]
+
+
 def get_session(response):
-    cookie = response.headers["Set-Cookie"]
+    cookie = get_cookie(response)
     return cookie.split(";")[0].split("=")
 
 
@@ -97,6 +101,41 @@ def get_product(client, pid):
                     avaliable
                     avaliability
                 }
+            }
+            """
+        },
+    )
+
+
+def pay_cart(client, payload):
+    return client.post(
+        "/graphql",
+        json={
+            "query": """
+            mutation {"""
+            f'payCart(payload: {payload}")'
+            """{
+                customer
+                address {
+                    city
+                    country
+                    zipcode
+                    street
+                    number
+                    district
+                }
+                totalPaid
+                productsPaid {
+                    id
+                    title
+                    description
+                    photos {
+                        url
+                    }
+                    price
+                    quantity
+                }
+              }
             }
             """
         },
