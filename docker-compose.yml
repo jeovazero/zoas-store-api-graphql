@@ -1,0 +1,33 @@
+version: "2"
+services:
+  api:
+    build: .
+    ports:
+      - "3000:5000"
+    networks:
+      - zoas
+    environment:
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_pass
+      - POSTGRES_DB=test_db
+      - POSTGRES_PORT=5432
+      - POSTGRES_HOST=postgres
+      - FLASK_TESTING=True
+      - FLASK_ENV=development
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_pass
+      - POSTGRES_DB=test_db
+    ports:
+      - "5432"
+    networks:
+      - zoas
+
+networks:
+  zoas:
+    driver: bridge
