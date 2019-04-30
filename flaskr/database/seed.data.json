@@ -1,0 +1,82 @@
+[
+    {
+        "title": "Zoas Sticker",
+        "price": 2.00,
+        "description": "A sticker of zoas trademark",
+        "avaliable": 50,
+        "avaliability": true,
+        "photos": [ "https://res.cloudinary.com/sohdezoas/image/upload/v1556136755/zoas/Group_14_mgkzzl.png" ]
+    },
+    {
+        "title": "Zoas Agenda",
+        "price": 12.88,
+        "description": "An agenda of zoas trademark",
+        "avaliable": 20,
+        "avaliability": true,
+        "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556135859/zoas/Group_8_rfakg9.png",
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556135845/zoas/Group_9_w0aim1.png"
+        ]
+    },
+    {
+        "title": "Zoas Mousepad Model 1",
+        "price": 30.75,
+        "description": "A Mousepad of zoas trademark",
+        "avaliable": 11,
+        "avaliability": true,
+        "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556136755/zoas/Group_11_egcx5s.png",
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556136756/zoas/Group_10_wntc1r.png"
+        ]
+    },
+    {
+       "title": "Zoas Mousepad Model 2",
+       "price": 30.70,
+       "description": "A Mousepad of zoas trademark",
+       "avaliable": 9,
+       "avaliability": true,
+       "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556136763/zoas/Group_13_viqda0.png"
+       ]
+    },
+    {
+        "title": "Zoas Shirt Model 1",
+        "price": 21.50,
+        "description": "A T-Shirt of zoas trademark",
+        "avaliable": 40,
+        "avaliability": true,
+        "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556567196/zoas/Group_fqvmm5.jpg"
+        ]
+    },
+    {
+        "title": "Zoas Shirt Model 2",
+        "price": 21.50,
+        "description": "A T-Shirt of zoas trademark",
+        "avaliable": 40,
+        "avaliability": true,
+        "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556567196/zoas/Group_1_emnqtr.jpg"
+        ]
+    },
+    {
+        "title": "Zoas Shirt Model 2",
+        "price": 21.50,
+        "description": "A T-Shirt of zoas trademark",
+        "avaliable": 40,
+        "avaliability": true,
+        "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556567196/zoas/Group_3_z9s6ep.jpg"
+        ]
+    },
+    {
+        "title": "Zoas Shirt Model 2",
+        "price": 21.50,
+        "description": "A T-Shirt of zoas trademark",
+        "avaliable": 40,
+        "avaliability": true,
+        "photos": [
+            "https://res.cloudinary.com/sohdezoas/image/upload/v1556567196/zoas/Group_4_xnptwk.jpg"
+        ]
+    }
+]

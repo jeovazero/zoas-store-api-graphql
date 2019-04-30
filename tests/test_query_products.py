@@ -26,7 +26,7 @@ def test_query_products(client):
     json = resp.get_json()
 
     products = json["data"]["products"]
-    assert len(products["items"]) == 4
+    assert len(products["items"]) == 8
     assert products["hasMoreItems"] is False
 
 

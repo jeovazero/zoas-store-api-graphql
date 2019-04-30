@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_graphql import GraphQLView
+from flask_cors import CORS
 from .graphqlr import schema
 from .database import seed
 import os
@@ -14,6 +15,9 @@ if TESTING or ENV == "development":
 is_graphiql = ENV == "development"
 
 app = Flask(__name__)
+
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*")
+CORS(app, resources={r"/graphql": {"origins": CORS_ORIGINS}})
 
 app.config["SECRET_KEY"] = os.getenv(
     "SECRET_KEY",

@@ -65,7 +65,7 @@ def test_invalid_id(client):
     resp1 = create_cart(client)
     assert len(get_session(resp1)[1]) > 1
 
-    resp2 = put_product_cart(client, pid="5", qtd=0)
+    resp2 = put_product_cart(client, pid="55", qtd=0)
     json = resp2.get_json()
 
     assert json["data"]["putProductToCart"] is None

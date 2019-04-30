@@ -14,7 +14,7 @@ def test_query_product(client):
 
 
 def test_invalid_id(client):
-    resp = get_product(client, pid="6")
+    resp = get_product(client, pid="99")
 
     json = resp.get_json()
 

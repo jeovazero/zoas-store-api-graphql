@@ -1,0 +1,51 @@
+language: python
+dist: xenial
+python:
+  - "3.7"
+
+cache:
+  - pip
+
+env:
+  global:
+  # app
+  - POSTGRES_DB=zoas_store
+  - POSTGRES_USER=testci
+  - POSTGRES_PASSWORD=testci
+  - POSTGRES_PORT=5433
+  - FLASK_TESTING=True
+  # postres
+  - PGHOST=localhost
+  - PGPORT=5433
+
+install:
+  - pip3.7 install -r requirements.txt
+  - pip3.7 install coveralls
+
+before_install:
+  - sudo service postgresql stop
+  - sudo apt-get update
+  - sudo apt-get --yes remove postgresql\*
+  - sudo apt-get install -y postgresql-11 postgresql-client-11
+  - sed -e 's/^port.*/port = 5433/' /etc/postgresql/11/main/postgresql.conf > postgresql.conf
+  - sudo chown postgres postgresql.conf
+  - sudo mv postgresql.conf /etc/postgresql/11/main
+  - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
+  - sudo service postgresql restart 11
+
+before_script:
+  - psql --version
+  - psql -c 'CREATE DATABASE zoas_store;' -U postgres
+  - psql -c "CREATE USER testci WITH PASSWORD 'testci';" -U postgres
+
+script:
+  - pytest --cov=flaskr
+
+after_success:
+  - coveralls
+
+services:
+  - postgresql
+
+addons:
+  postgresql: "11"

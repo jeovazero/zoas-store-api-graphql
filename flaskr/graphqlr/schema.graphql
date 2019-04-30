@@ -1,0 +1,100 @@
+schema {
+  query: Query
+  mutation: Mutations
+}
+
+type Address {
+  city: String
+  country: String
+  zipcode: String
+  street: String
+  number: String
+  district: String
+}
+
+input AddressInput {
+  city: String!
+  country: String!
+  zipcode: String!
+  street: String!
+  number: String!
+  district: String!
+}
+
+type CreateCart {
+  confirmation: String
+}
+
+input CreditCardInput {
+  cardNumber: String!
+  expirationDate: String!
+  cvv: String!
+}
+
+type DeleteCart {
+  confirmation: String
+}
+
+type Item {
+  id: ID!
+  title: String!
+  price: Float!
+  description: String!
+  avaliable: Int!
+  avaliability: Boolean!
+  photos: [Photo]
+}
+
+type Mutations {
+  createCart: CreateCart
+  deleteCart: DeleteCart
+  putProductToCart(payload: PutProductInput!): [ProductCart]
+  removeProductOfCart(productId: String!): [ProductCart]
+  payCart(payload: PayCartInput!): PayCart
+}
+
+type PayCart {
+  customer: String
+  address: Address
+  totalPaid: Float
+  productsPaid: [ProductCart]
+}
+
+input PayCartInput {
+  fullName: String!
+  address: AddressInput!
+  creditCard: CreditCardInput!
+}
+
+type Photo {
+  url: String!
+}
+
+type PhotoProductCart {
+  url: String
+}
+
+type ProductCart {
+  productId: Int
+  title: String
+  description: String
+  price: Float
+  quantity: Int
+  photos: [PhotoProductCart]
+}
+
+type Products {
+  items: [Item]
+  hasMoreItems: Boolean
+}
+
+input PutProductInput {
+  productId: String
+  quantity: Int
+}
+
+type Query {
+  cart: [ProductCart]
+  product(productId: String!): Item
+  products(offset: Int = 0, limit: Int = 10): Products
+}
