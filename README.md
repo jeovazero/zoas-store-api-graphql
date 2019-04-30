@@ -56,12 +56,14 @@ It utilized in the project:
 #### `make gunicorn`
 > Run the app with gunicorn
 
+#### `make genSchema`
+> Generate the _flaskr/graphqlr/schema.graphql_ file
 
 ## Graphql
 
 `/graphql`
 
-To see the full schema auto-generated go to [schema.graphql](/graphql/schema.graphql), it is as a documentation for api.
+To see the full schema auto-generated go to [schema.graphql](/flaskr/graphqlr/schema.graphql), it is as a documentation for api.
 
 ```graphql
 type Mutations {
