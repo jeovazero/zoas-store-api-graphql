@@ -39,7 +39,7 @@ def test_query_products(client):
 
 
 def test_query_products_pagination(client):
-    cursor = encode_base64("arrayconnection0")
+    cursor = encode_base64("arrayconnection:1")
     resp = client.post(
         "/graphql",
         json={
@@ -51,6 +51,7 @@ def test_query_products_pagination(client):
                         hasNextPage
                     }
                     edges {
+                        cursor
                         node{
                             id
                             title
@@ -74,4 +75,6 @@ def test_query_products_pagination(client):
     products = json["data"]["products"]
     edges = products["edges"]
     assert len(edges) == 2
+    assert edges[0]["cursor"] == encode_base64("arrayconnection:2")
+    assert edges[1]["cursor"] == encode_base64("arrayconnection:3")
     assert products["pageInfo"]["hasNextPage"] is True
