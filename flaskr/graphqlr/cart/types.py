@@ -1,9 +1,16 @@
-from graphene import ObjectType, List, Int, String, Float, InputObjectType
-
-
-class PutProductInput(InputObjectType):
-    productId = String()
-    quantity = Int()
+from graphene import (
+    ObjectType,
+    List,
+    Int,
+    String,
+    Float,
+    InputObjectType,
+    relay,
+    Field,
+)
+from flask import session
+from flaskr.database import ProductCartModel
+from flaskr.database import Session as DbSession
 
 
 class PhotoProductCart(ObjectType):
@@ -17,6 +24,18 @@ class ProductCart(ObjectType):
     price = Float()
     quantity = Int()
     photos = List(PhotoProductCart)
+
+    class Meta:
+        interfaces = (relay.Node,)
+
+    @classmethod
+    def get_node(cls, info, id):
+        sid = str(session["u"])
+        return (
+            DbSession.query(ProductCartModel)
+            .filter_by(cart_id=sid, product_id=id)
+            .one()
+        )
 
 
 class Address(ObjectType):
@@ -43,7 +62,8 @@ class CreditCardInput(InputObjectType):
     cvv = String(required=True)
 
 
-class PayCartInput(InputObjectType):
-    full_name = String(required=True)
-    address = AddressInput(required=True)
-    credit_card = CreditCardInput(required=True)
+class PurchaseResult(ObjectType):
+    customer = String()
+    address = Field(Address)
+    total_paid = Float()
+    products_paid = List(ProductCart)

@@ -1,5 +1,7 @@
 from flask import Flask
-from flask_graphql import GraphQLView
+
+# from flask_graphql import GraphQLView
+from flaskr.graphqlr.view import ZoasGraphQLView
 from flask_cors import CORS
 from .graphqlr import schema
 from .database import seed
@@ -28,7 +30,7 @@ app.config["SESSION_COOKIE_NAME"] = "80l4ch4"
 
 app.add_url_rule(
     "/graphql",
-    view_func=GraphQLView.as_view(
+    view_func=ZoasGraphQLView.as_view(
         "graphql", schema=schema, graphiql=is_graphiql
     ),
 )
