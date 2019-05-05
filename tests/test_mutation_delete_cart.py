@@ -1,10 +1,8 @@
-from .helpers import create_cart, get_session, get_uuid, delete_cart
+from .helpers import _create_cart, get_session, get_uuid, delete_cart
 
 
 def test_delete_cart(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
     mutation_id = get_uuid()
     resp2 = delete_cart(client, mutation_id)
@@ -18,9 +16,7 @@ def test_delete_cart(client):
 
 
 def test_invalid_session(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:

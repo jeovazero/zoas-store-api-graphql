@@ -1,10 +1,4 @@
-from .helpers import (
-    create_cart,
-    get_session,
-    put_product_cart,
-    pay_cart,
-    get_uuid,
-)
+from .helpers import _create_cart, put_product_cart, pay_cart, get_uuid
 import copy
 
 # Fake user
@@ -35,15 +29,12 @@ john_wrong["creditCard"] = {
 
 
 def test_pay_cart(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
     mutation_id = get_uuid()
     put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
     put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
 
-    mutation_id = get_uuid()
     resp2 = pay_cart(client, payload=john_right, mutation_id=mutation_id)
     json = resp2.get_json()
     payload = json["data"]["payCart"]["payload"]
@@ -56,9 +47,7 @@ def test_pay_cart(client):
 
 
 def test_invalid_session(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
     mutation_id = get_uuid()
     put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
@@ -82,10 +71,8 @@ def test_invalid_session(client):
 
 def test_lack_of_stock(client):
     # First cart
+    _create_cart(client)
     mutation_id = get_uuid()
-    resp_1 = create_cart(client, mutation_id)
-    assert len(get_session(resp_1)[1]) > 1
-
     put_product_cart(client, pid="3", qtd=6, uid=mutation_id)
     resp_put_1 = put_product_cart(client, pid="4", qtd=5, uid=mutation_id)
 
@@ -98,9 +85,7 @@ def test_lack_of_stock(client):
         session_id_1 = session_1["u"]
 
     # Second cart
-    mutation_id = get_uuid()
-    resp_2 = create_cart(client, mutation_id)
-    assert len(get_session(resp_2)[1]) > 1
+    _create_cart(client)
     # 6 (in cart 2) + 6 (in cart 1) > 11 (total of product 3)
     put_product_cart(client, pid="3", qtd=6, uid=mutation_id)
     resp_pay_2 = pay_cart(client, payload=john_right, mutation_id=mutation_id)
@@ -129,14 +114,12 @@ def test_lack_of_stock(client):
 
 
 def test_wrong_credit_card(client):
+    _create_cart(client)
     mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
 
     put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
     put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
 
-    mutation_id = get_uuid()
     resp2 = pay_cart(client, payload=john_wrong, mutation_id=mutation_id)
     json = resp2.get_json()
 

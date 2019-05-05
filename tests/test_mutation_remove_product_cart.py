@@ -1,6 +1,5 @@
 from .helpers import (
-    create_cart,
-    get_session,
+    _create_cart,
     put_product_cart,
     remove_product_cart,
     get_uuid,
@@ -8,10 +7,9 @@ from .helpers import (
 
 
 def test_mutation_remove_product_cart(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
+    mutation_id = get_uuid()
     put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
     put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
 
@@ -30,10 +28,9 @@ def test_mutation_remove_product_cart(client):
 
 
 def test_invalid_session(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
+    mutation_id = get_uuid()
     put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
     put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
 
@@ -53,10 +50,9 @@ def test_invalid_session(client):
 
 
 def test_invalid_id(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
+    mutation_id = get_uuid()
     put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
     put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
 

@@ -28,6 +28,12 @@ def create_cart(client, uid):
     )
 
 
+def _create_cart(client):
+    mutation_id = get_uuid()
+    resp1 = create_cart(client, mutation_id)
+    assert len(get_session(resp1)[1]) > 1
+
+
 def delete_cart(client, mutation_id):
     return client.post(
         "/graphql",
