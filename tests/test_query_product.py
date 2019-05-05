@@ -1,4 +1,4 @@
-from .helpers import get_product
+from .helpers import get_product, encode_base64
 
 
 def test_query_product(client):
@@ -6,7 +6,7 @@ def test_query_product(client):
     json = resp.get_json()
 
     product = json["data"]["product"]
-    assert product["id"] == "4"
+    assert product["id"] == encode_base64("Product:4")
     assert product["title"] == "Zoas Mousepad Model 2"
     assert product["avaliable"] == 9
     assert product["price"] == 30.7
@@ -19,7 +19,3 @@ def test_invalid_id(client):
     json = resp.get_json()
 
     assert json["data"]["product"] is None
-    assert json["errors"] is not None
-    assert (
-        json["errors"][0]["message"] == "The product with provided id not exist"
-    )
