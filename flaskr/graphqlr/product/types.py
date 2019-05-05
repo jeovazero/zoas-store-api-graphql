@@ -1,11 +1,14 @@
-from graphene import ObjectType, List, Boolean
+from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType
 from flaskr.database import ProductModel, PhotoModel
 
+# from ..errors import INVALID_PRODUCT_ID
 
-class Item(SQLAlchemyObjectType):
+
+class Product(SQLAlchemyObjectType):
     class Meta:
         model = ProductModel
+        interfaces = (relay.Node,)
 
 
 class Photo(SQLAlchemyObjectType):
@@ -14,6 +17,6 @@ class Photo(SQLAlchemyObjectType):
         only_fields = ("url",)
 
 
-class Products(ObjectType):
-    items = List(Item)
-    has_more_items = Boolean()
+class Products(relay.Connection):
+    class Meta:
+        node = Product
