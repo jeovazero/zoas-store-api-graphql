@@ -30,12 +30,25 @@ class ProductCart(ObjectType):
 
     @classmethod
     def get_node(cls, info, id):
+        print("id", id)
         sid = str(session["u"])
-        return (
+        prod_cart = (
             DbSession.query(ProductCartModel)
             .filter_by(cart_id=sid, product_id=id)
             .one()
         )
+        if prod_cart is not None:
+            return ProductCart(prod_cart)
+        return prod_cart
+
+    def __init__(self, prodcart):
+        self.id = prodcart.product_id
+        self.product_id = prodcart.product_id
+        self.title = prodcart.product.title
+        self.description = prodcart.product.description
+        self.price = prodcart.product.price
+        self.quantity = prodcart.quantity
+        self.photos = prodcart.product.photos
 
 
 class Address(ObjectType):

@@ -27,20 +27,8 @@ def b64encode(s):
 def resolve_list_product_cart(products):
     ans = []
     for p in products:
-        ans.append(resolve_product_cart(p))
+        ans.append(ProductCart(p))
     return ans
-
-
-def resolve_product_cart(prodcart):
-    return ProductCart(
-        id=prodcart.product_id,
-        product_id=prodcart.product_id,
-        title=prodcart.product.title,
-        description=prodcart.product.description,
-        price=prodcart.product.price,
-        quantity=prodcart.quantity,
-        photos=prodcart.product.photos,
-    )
 
 
 def upsert_product_cart(sid, pid, product, quantity):
