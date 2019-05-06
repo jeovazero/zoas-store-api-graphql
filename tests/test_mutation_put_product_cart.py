@@ -17,6 +17,26 @@ def test_put_product(client):
     assert client_mutation_id == mutation_id
 
 
+def test_put_idempotent(client):
+    _create_cart(client)
+
+    mutation_id = get_uuid()
+    put_product_cart(client, pid="2", qtd=8, uid=mutation_id)
+    put_product_cart(client, pid="2", qtd=9, uid=mutation_id)
+    resp2 = put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
+    json = resp2.get_json()
+    payload = json["data"]["putProductToCart"]["payload"]
+    product_of_cart = payload[0]
+    client_mutation_id = json["data"]["putProductToCart"]["clientMutationId"]
+
+    assert len(payload) == 1
+    assert product_of_cart["productId"] == 2
+    assert product_of_cart["quantity"] == 10
+    assert product_of_cart["price"] == 12.88
+    assert len(product_of_cart["photos"]) == 2
+    assert client_mutation_id == mutation_id
+
+
 def test_invalid_session(client):
     _create_cart(client)
 
