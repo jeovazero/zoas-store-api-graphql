@@ -1,4 +1,10 @@
-from .helpers import _create_cart, put_product_cart, pay_cart, get_uuid
+from .helpers import (
+    _create_cart,
+    put_product_cart,
+    pay_cart,
+    get_uuid,
+    _put_products,
+)
 import copy
 
 # Fake user
@@ -27,13 +33,19 @@ john_wrong["creditCard"] = {
     "cvv": "123",
 }
 
+joao_fake = copy.deepcopy(john_right)
+joao_fake["creditCard"] = {
+    "cardNumber": "5345234345340",
+    "expirationDate": "01/27",
+    "cvv": "123",
+}
+
 
 def test_pay_cart(client):
     _create_cart(client)
 
     mutation_id = get_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+    _put_products(client)
 
     resp2 = pay_cart(client, payload=john_right, mutation_id=mutation_id)
     json = resp2.get_json()
@@ -50,8 +62,7 @@ def test_invalid_session(client):
     _create_cart(client)
 
     mutation_id = get_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+    _put_products(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:
@@ -117,10 +128,26 @@ def test_wrong_credit_card(client):
     _create_cart(client)
     mutation_id = get_uuid()
 
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+    _put_products(client)
 
     resp2 = pay_cart(client, payload=john_wrong, mutation_id=mutation_id)
+    json = resp2.get_json()
+
+    assert json["data"]["payCart"] is None
+    assert json["errors"] is not None
+    assert (
+        json["errors"][0]["message"] == "Problems in credit card informations"
+    )
+    assert json["errors"][0]["code"] == "INVALID_CREDIT_CARD"
+
+
+def test_wrong_credit_card_less_then_16(client):
+    _create_cart(client)
+    mutation_id = get_uuid()
+
+    _put_products(client)
+
+    resp2 = pay_cart(client, payload=joao_fake, mutation_id=mutation_id)
     json = resp2.get_json()
 
     assert json["data"]["payCart"] is None
