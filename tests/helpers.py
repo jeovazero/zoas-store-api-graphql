@@ -109,6 +109,12 @@ def put_product_cart(client, pid, qtd, uid):
     )
 
 
+def _put_products(client):
+    mutation_id = get_uuid()
+    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
+    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+
+
 def remove_product_cart(client, pid, uid):
     id = encode_base64(f"ProductCart:{pid}")
     return client.post(
@@ -155,6 +161,32 @@ def get_product(client, pid):
                     description
                     avaliable
                     avaliability
+                }
+            }
+            """
+        },
+    )
+
+
+def get_product_cart(client, pid):
+    id = encode_base64(f"ProductCart:{pid}")
+    return client.post(
+        "/graphql",
+        json={
+            "query": """
+            query {"""
+            f'node(id: "{id}")'
+            """{
+                ...on ProductCart {
+                        id
+                        title
+                        productId
+                        quantity
+                        price
+                        photos {
+                            url
+                        }
+                    }
                 }
             }
             """
