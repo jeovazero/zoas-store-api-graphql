@@ -8,7 +8,7 @@ from graphene import (
     relay,
     Field,
 )
-from flask import session
+from ..mixins import SessionMixin
 from flaskr.database import ProductCartModel
 from flaskr.database import Session as DbSession
 
@@ -17,7 +17,7 @@ class PhotoProductCart(ObjectType):
     url = String()
 
 
-class ProductCart(ObjectType):
+class ProductCart(ObjectType, SessionMixin):
     product_id = Int()
     title = String()
     description = String()
@@ -30,12 +30,10 @@ class ProductCart(ObjectType):
 
     @classmethod
     def get_node(cls, info, id):
-        print("id", id)
-        sid = str(session["u"])
         prod_cart = (
             DbSession.query(ProductCartModel)
-            .filter_by(cart_id=sid, product_id=id)
-            .one()
+            .filter_by(cart_id=cls.sid(), product_id=id)
+            .first()
         )
         if prod_cart is not None:
             return ProductCart(prod_cart)
