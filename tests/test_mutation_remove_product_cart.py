@@ -1,17 +1,11 @@
-from .helpers import (
-    _create_cart,
-    put_product_cart,
-    remove_product_cart,
-    get_uuid,
-)
+from .helpers import _create_cart, _put_products, remove_product_cart, get_uuid
 
 
 def test_mutation_remove_product_cart(client):
     _create_cart(client)
 
     mutation_id = get_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+    _put_products(client)
 
     resp2 = remove_product_cart(client, pid="2", uid=mutation_id)
     json = resp2.get_json()
@@ -31,8 +25,7 @@ def test_invalid_session(client):
     _create_cart(client)
 
     mutation_id = get_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+    _put_products(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:
@@ -53,8 +46,7 @@ def test_invalid_id(client):
     _create_cart(client)
 
     mutation_id = get_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+    _put_products(client)
 
     resp2 = remove_product_cart(client, pid="9", uid=mutation_id)
     json = resp2.get_json()
