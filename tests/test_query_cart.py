@@ -1,12 +1,9 @@
-from .helpers import create_cart, get_session, put_product_cart, get_cart
+from .helpers import _create_cart, get_cart, _put_products
 
 
 def test_query_get_cart(client):
-    resp1 = create_cart(client)
-    assert len(get_session(resp1)[1]) > 1
-
-    put_product_cart(client, pid="2", qtd=10)
-    put_product_cart(client, pid="1", qtd=20)
+    _create_cart(client)
+    _put_products(client)
 
     resp2 = get_cart(client)
     json = resp2.get_json()
@@ -18,11 +15,8 @@ def test_query_get_cart(client):
 
 
 def test_invalid_session(client):
-    resp1 = create_cart(client)
-    assert len(get_session(resp1)[1]) > 1
-
-    put_product_cart(client, pid="2", qtd=10)
-    put_product_cart(client, pid="1", qtd=20)
+    _create_cart(client)
+    _put_products(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:
@@ -36,3 +30,4 @@ def test_invalid_session(client):
     assert (
         json["errors"][0]["message"] == "The session has expired or is invalid"
     )
+    assert json["errors"][0]["code"] == "INVALID_SESSION"

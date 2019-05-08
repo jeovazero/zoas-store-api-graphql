@@ -1,42 +1,37 @@
-from .helpers import (
-    create_cart,
-    get_session,
-    put_product_cart,
-    remove_product_cart,
-)
+from .helpers import _create_cart, _put_products, remove_product_cart, get_uuid
 
 
 def test_mutation_remove_product_cart(client):
-    resp1 = create_cart(client)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
-    put_product_cart(client, pid="2", qtd=10)
-    put_product_cart(client, pid="1", qtd=20)
+    mutation_id = get_uuid()
+    _put_products(client)
 
-    resp2 = remove_product_cart(client, pid="2")
+    resp2 = remove_product_cart(client, pid="2", uid=mutation_id)
     json = resp2.get_json()
     cart = json["data"]["removeProductOfCart"]
-    product = cart[0]
+    product = cart["payload"][0]
+    client_mutation_id = cart["clientMutationId"]
 
-    assert len(cart) == 1
+    assert len(cart["payload"]) == 1
     assert product["productId"] == 1
     assert product["quantity"] == 20
     assert product["price"] == 2
     assert len(product["photos"]) == 1
+    assert client_mutation_id == mutation_id
 
 
 def test_invalid_session(client):
-    resp1 = create_cart(client)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
-    put_product_cart(client, pid="2", qtd=10)
-    put_product_cart(client, pid="1", qtd=20)
+    mutation_id = get_uuid()
+    _put_products(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:
         session["u"] = "fake_session"
 
-    resp2 = remove_product_cart(client, pid="2")
+    resp2 = remove_product_cart(client, pid="2", uid=mutation_id)
     json = resp2.get_json()
 
     assert json["data"]["removeProductOfCart"] is None
@@ -44,16 +39,16 @@ def test_invalid_session(client):
     assert (
         json["errors"][0]["message"] == "The session has expired or is invalid"
     )
+    assert json["errors"][0]["code"] == "INVALID_SESSION"
 
 
 def test_invalid_id(client):
-    resp1 = create_cart(client)
-    assert len(get_session(resp1)[1]) > 1
+    _create_cart(client)
 
-    put_product_cart(client, pid="2", qtd=10)
-    put_product_cart(client, pid="1", qtd=20)
+    mutation_id = get_uuid()
+    _put_products(client)
 
-    resp2 = remove_product_cart(client, pid="9")
+    resp2 = remove_product_cart(client, pid="9", uid=mutation_id)
     json = resp2.get_json()
 
     assert json["data"]["removeProductOfCart"] is None
@@ -61,3 +56,4 @@ def test_invalid_id(client):
     assert (
         json["errors"][0]["message"] == "The product with provided id not exist"
     )
+    assert json["errors"][0]["code"] == "INVALID_PRODUCT_ID"

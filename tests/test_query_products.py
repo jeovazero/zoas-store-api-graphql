@@ -1,3 +1,6 @@
+from .helpers import encode_base64
+
+
 def test_query_products(client):
     resp = client.post(
         "/graphql",
@@ -5,17 +8,21 @@ def test_query_products(client):
             "query": """
             query {
                 products {
-                    hasMoreItems
-                    items {
-                        id
-                        title
-                        photos {
-                            url
+                    pageInfo{
+                        hasNextPage
+                    }
+                    edges {
+                        node {
+                            id
+                            title
+                            photos {
+                                url
+                            }
+                            price
+                            description
+                            avaliable
+                            avaliability
                         }
-                        price
-                        description
-                        avaliable
-                        avaliability
                     }
                 }
             }
@@ -26,28 +33,36 @@ def test_query_products(client):
     json = resp.get_json()
 
     products = json["data"]["products"]
-    assert len(products["items"]) == 8
-    assert products["hasMoreItems"] is False
+    edges = products["edges"]
+    assert len(edges) == 8
+    assert products["pageInfo"]["hasNextPage"] is False
 
 
 def test_query_products_pagination(client):
+    cursor = encode_base64("arrayconnection:1")
     resp = client.post(
         "/graphql",
         json={
             "query": """
-            query {
-                products(offset: 1, limit: 2) {
-                    hasMoreItems
-                    items {
-                        id
-                        title
-                        photos {
-                            url
+            query {"""
+            f'products(after: "{cursor}", first: 2)'
+            """{
+                    pageInfo{
+                        hasNextPage
+                    }
+                    edges {
+                        cursor
+                        node{
+                            id
+                            title
+                            photos {
+                                url
+                            }
+                            price
+                            description
+                            avaliable
+                            avaliability
                         }
-                        price
-                        description
-                        avaliable
-                        avaliability
                     }
                 }
             }
@@ -58,6 +73,8 @@ def test_query_products_pagination(client):
     json = resp.get_json()
 
     products = json["data"]["products"]
-
-    assert len(products["items"]) == 2
-    assert products["hasMoreItems"] is True
+    edges = products["edges"]
+    assert len(edges) == 2
+    assert edges[0]["cursor"] == encode_base64("arrayconnection:2")
+    assert edges[1]["cursor"] == encode_base64("arrayconnection:3")
+    assert products["pageInfo"]["hasNextPage"] is True

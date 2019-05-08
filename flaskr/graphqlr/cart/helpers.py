@@ -1,5 +1,6 @@
 from flaskr.database import Session as DbSession
 from flaskr.database import ProductCartModel, CartModel, ProductModel
+import base64
 from .types import ProductCart
 from ..errors import (
     INVALID_SESSION,
@@ -7,25 +8,27 @@ from ..errors import (
     INVALID_PRODUCT_QUANTITY,
     INVALID_CREDIT_CARD,
     LACK_OF_STOCK,
+    ZoasError,
 )
+
+
+def decode_id(s):
+    dec = base64.b64decode(s.encode("ascii")).decode("ascii")
+    list_dec = dec.split(":")
+    if len(list_dec) == 2:
+        return list_dec[1]
+    raise ZoasError(INVALID_PRODUCT_ID)
+
+
+def b64encode(s):
+    return base64.b64encode(s.encode("ascii")).decode("ascii")
 
 
 def resolve_list_product_cart(products):
     ans = []
     for p in products:
-        ans.append(resolve_product_cart(p))
+        ans.append(ProductCart(p))
     return ans
-
-
-def resolve_product_cart(prodcart):
-    return ProductCart(
-        product_id=prodcart.product_id,
-        title=prodcart.product.title,
-        description=prodcart.product.description,
-        price=prodcart.product.price,
-        quantity=prodcart.quantity,
-        photos=prodcart.product.photos,
-    )
 
 
 def upsert_product_cart(sid, pid, product, quantity):
@@ -48,7 +51,7 @@ def get_cart(sid):
     cart = DbSession.query(CartModel).filter(CartModel.id == sid).first()
 
     if not cart:
-        raise Exception(INVALID_SESSION)
+        raise ZoasError(INVALID_SESSION)
     return cart
 
 
@@ -58,7 +61,7 @@ def get_product(pid):
     )
 
     if not product:
-        raise Exception(INVALID_PRODUCT_ID)
+        raise ZoasError(INVALID_PRODUCT_ID)
     return product
 
 
@@ -72,20 +75,20 @@ def get_product_cart(sid, pid):
     )
 
     if not product:
-        raise Exception(INVALID_PRODUCT_ID)
+        raise ZoasError(INVALID_PRODUCT_ID)
     return product
 
 
 def validate_product_quantity(product, quantity):
     avaliable = product.avaliable
     if quantity <= 0 or quantity > avaliable:
-        raise Exception(INVALID_PRODUCT_QUANTITY)
+        raise ZoasError(INVALID_PRODUCT_QUANTITY)
 
 
 def validate_credit_card(card):
     # Luhn algorithm
     if len(card) != 16:
-        raise Exception(INVALID_CREDIT_CARD)
+        raise ZoasError(INVALID_CREDIT_CARD)
     s = 0
     for i in range(0, len(card)):
         v = ord(card[i]) - ord("0")
@@ -94,7 +97,7 @@ def validate_credit_card(card):
         else:
             s += (v * 2) % 9
     if not (s % 10 == 0):
-        raise Exception(INVALID_CREDIT_CARD)
+        raise ZoasError(INVALID_CREDIT_CARD)
 
 
 def pay_products_cart(sid):
@@ -113,6 +116,10 @@ def pay_products_cart(sid):
             DbSession.add(product)
             DbSession.delete(prod_cart)
         else:
-            raise Exception(LACK_OF_STOCK.format(product.title))
+            errorMsg = [
+                LACK_OF_STOCK[0].format(product.title),
+                LACK_OF_STOCK[1],
+            ]
+            raise ZoasError(errorMsg)
     DbSession.commit()
     return total

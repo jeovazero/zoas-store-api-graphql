@@ -35,4 +35,4 @@ gunicorn: # TESTING only to seed the database, remove it in for production :)
 	$(ACT); FLASK_TESTING=True gunicorn --bind 0.0.0.0:5000 flaskr.app:app
 
 genSchema:
-	$(ACT); python3.7 -m flaskr.graphqlr.gen_schema
+	$(ACT); python3.7 scripts/gen_schema.py
