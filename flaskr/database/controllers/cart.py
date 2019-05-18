@@ -1,4 +1,4 @@
-from ..models import CartModel
+from ..models import CartModel, ProductCartModel, ProductModel
 from .. import Session
 
 
@@ -27,3 +27,30 @@ class CartController:
             Session.commit()
         except Exception:
             print("Error in delete all data of Cart table")
+
+    @staticmethod
+    def add_product(id: str, pid: str, quantity: int):
+        try:
+            cart = CartController.get(id=id)
+            product = Session.query(ProductModel).filter_by(id=pid).first()
+            product_cart = ProductCartModel(product=product, quantity=quantity)
+            cart.products.append(product_cart)
+            Session.add(product_cart)
+            Session.add(cart)
+            Session.commit()
+        except Exception:
+            print(f"Error in put a product in cart of id: {id}")
+
+    @staticmethod
+    def get_products(id: str):
+        products = Session.query(ProductCartModel).filter_by(cart_id=id).all()
+        return products
+
+    @staticmethod
+    def get_product(id: str, pid: str):
+        product = (
+            Session.query(ProductCartModel)
+            .filter_by(cart_id=id, product_id=pid)
+            .first()
+        )
+        return product
