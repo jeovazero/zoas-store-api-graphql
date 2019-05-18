@@ -16,7 +16,7 @@ def test_delete_cart(client):
     [session_name, session_value] = get_session(response)
 
     # verify if cart not exists
-    cart = CartController.get(id=session_id)
+    cart = CartController.get_or_none(id=session_id)
     assert cart is None
 
     # assert

@@ -56,6 +56,6 @@ def add_fake_cart(client):
 
 def add_fake_cart_products(client):
     cart_id = add_fake_cart(client)
-    CartController.add_product(id=cart_id, pid="2", quantity=11)
-    CartController.add_product(id=cart_id, pid="1", quantity=20)
+    CartController.put_product(id=cart_id, pid="2", quantity=11)
+    CartController.put_product(id=cart_id, pid="1", quantity=20)
     return cart_id
