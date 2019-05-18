@@ -14,10 +14,14 @@ from flaskr.database import Session as DbSession
 
 
 class PhotoProductCart(ObjectType):
+    """A photo of a product in the cart"""
+
     url = String()
 
 
 class ProductCart(ObjectType, SessionMixin):
+    """A product in the cart"""
+
     product_id = Int()
     title = String()
     description = String()
@@ -50,6 +54,8 @@ class ProductCart(ObjectType, SessionMixin):
 
 
 class Address(ObjectType):
+    """A address of a customer"""
+
     city = String()
     country = String()
     zipcode = String()
@@ -59,6 +65,8 @@ class Address(ObjectType):
 
 
 class AddressInput(InputObjectType):
+    """A address input of a customer"""
+
     city = String(required=True)
     country = String(required=True)
     zipcode = String(required=True)
@@ -68,12 +76,16 @@ class AddressInput(InputObjectType):
 
 
 class CreditCardInput(InputObjectType):
+    """A credit card input of a customer"""
+
     card_number = String(required=True)
     expiration_date = String(required=True)
     cvv = String(required=True)
 
 
 class PurchaseResult(ObjectType):
+    """A purchase result of a customer"""
+
     customer = String()
     address = Field(Address)
     total_paid = Float()

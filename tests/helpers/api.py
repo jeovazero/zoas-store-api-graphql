@@ -1,13 +1,4 @@
-import uuid
-import base64
-
-
-def get_uuid():
-    return str(uuid.uuid4())
-
-
-def encode_base64(s):
-    return base64.b64encode(s.encode("ascii")).decode("ascii")
+from .func import encode_base64
 
 
 def create_cart(client, uid):
@@ -26,12 +17,6 @@ def create_cart(client, uid):
             """
         },
     )
-
-
-def _create_cart(client):
-    mutation_id = get_uuid()
-    resp1 = create_cart(client, mutation_id)
-    assert len(get_session(resp1)[1]) > 1
 
 
 def delete_cart(client, mutation_id):
@@ -73,15 +58,6 @@ def get_cart(client):
     )
 
 
-def get_cookie(response):
-    return response.headers["Set-Cookie"]
-
-
-def get_session(response):
-    cookie = get_cookie(response)
-    return cookie.split(";")[0].split("=")
-
-
 def put_product_cart(client, pid, qtd, uid):
     id = encode_base64(f"Product:{pid}")
     return client.post(
@@ -107,12 +83,6 @@ def put_product_cart(client, pid, qtd, uid):
             """
         },
     )
-
-
-def _put_products(client):
-    mutation_id = get_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
 
 
 def remove_product_cart(client, pid, uid):
