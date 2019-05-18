@@ -2,21 +2,21 @@ from .helpers import api
 from .helpers.func import add_fake_cart_products
 
 
-def test_query_get_cart(client):
+def test_query_product_cart(client):
     # add fake cart with products in database
     add_fake_cart_products(client)
 
     # request
-    response = api.get_cart(client)
+    response = api.get_product_cart(client, pid="2")
 
     # json of response
     json = response.get_json()
-    cart = json["data"]["cart"]
+    product_cart = json["data"]["node"]
 
     # asserts
-    assert len(cart) == 2
-    assert cart[0]["productId"] == 1
-    assert cart[1]["productId"] == 2
+    assert product_cart["quantity"] == 11
+    assert product_cart["productId"] == 2
+    assert product_cart["title"] == "Zoas Agenda"
 
 
 def test_invalid_session(client):
@@ -28,15 +28,9 @@ def test_invalid_session(client):
         session["u"] = "fake_session"
 
     # request
-    response = api.get_cart(client)
+    response = api.get_product_cart(client, pid="2")
 
     # json of response
     json = response.get_json()
 
-    # asserts
-    assert json["data"]["cart"] is None
-    assert json["errors"] is not None
-    assert (
-        json["errors"][0]["message"] == "The session has expired or is invalid"
-    )
-    assert json["errors"][0]["code"] == "INVALID_SESSION"
+    assert json["data"]["node"] is None

@@ -1,12 +1,13 @@
-from .helpers import get_product
+from .helpers import api
+from .helpers.func import encode_base64
 
 
 def test_query_product(client):
-    resp = get_product(client, pid="4")
+    resp = api.get_product(client, pid="4")
     json = resp.get_json()
 
     product = json["data"]["product"]
-    assert product["id"] == "4"
+    assert product["id"] == encode_base64("Product:4")
     assert product["title"] == "Zoas Mousepad Model 2"
     assert product["avaliable"] == 9
     assert product["price"] == 30.7
@@ -14,12 +15,8 @@ def test_query_product(client):
 
 
 def test_invalid_id(client):
-    resp = get_product(client, pid="99")
+    resp = api.get_product(client, pid="99")
 
     json = resp.get_json()
 
     assert json["data"]["product"] is None
-    assert json["errors"] is not None
-    assert (
-        json["errors"][0]["message"] == "The product with provided id not exist"
-    )

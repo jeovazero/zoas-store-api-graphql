@@ -1,119 +1,130 @@
-from graphene import List, String, Float, Field
-from graphene import Mutation as MutationType
-from flaskr.database import CartModel
-from flaskr.database import Session as DbSession
-from flask import session
-import uuid
-from .types import PutProductInput, ProductCart, PayCartInput, Address
+from graphene import List, String, Field, relay, ID, Int
+from flaskr.database import CartController, ProductController
+from ..mixins import SessionMixin
+from .types import ProductCart, PurchaseResult, AddressInput, CreditCardInput
 from .helpers import (
-    upsert_product_cart,
     resolve_list_product_cart,
-    get_cart,
-    get_product,
-    get_product_cart,
     validate_product_quantity,
     validate_credit_card,
-    pay_products_cart,
+    decode_id,
 )
 
 
-class CreateCart(MutationType):
+class CreateCart(relay.ClientIDMutation, SessionMixin):
     confirmation = String()
 
-    def mutate(self, info):
-        # print("CREATE PREVIOUS SESSION: ", session)
-        session["u"] = uuid.uuid4()
-        DbSession.add(CartModel(id=session["u"]))
-        DbSession.commit()
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **kwargs):
+        # create a session for the user
+        cls.create_session()
+
+        # create a register in the database
+        CartController.create(id=cls.sid())
+
         return CreateCart(confirmation="success")
 
 
-class DeleteCart(MutationType):
+class DeleteCart(relay.ClientIDMutation, SessionMixin):
     confirmation = String()
 
-    def mutate(self, info):
-        # print("DELETE PREVIOUS SESSION", session)
-        sid = str(session["u"])
-        cart = get_cart(sid)
-        DbSession.delete(cart)
-        DbSession.commit()
-        session.pop("u", None)
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **kwargs):
+        # remove the register from database
+        CartController.delete(id=cls.sid())
+
+        # delete the session
+        cls.delete_session()
+
         return DeleteCart(confirmation="success")
 
 
-class PutProductToCart(MutationType):
-    class Arguments:
-        payload = PutProductInput(required=True)
+class PutProductToCart(relay.ClientIDMutation, SessionMixin):
+    class Input:
+        id = ID(required=True)
+        quantity = Int(required=True)
 
-    Output = List(ProductCart)
+    payload = List(ProductCart)
 
-    def mutate(self, info, **kwargs):
-        sid = str(session["u"])
-        cart = get_cart(sid)
-        payload = kwargs.get("payload", {})
-        pid = str(payload.get("productId"))
-        quantity = payload.get("quantity")
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **kwargs):
+        # getting product id and quantity of product
+        pid = decode_id(str(kwargs.get("id")))
+        quantity = kwargs.get("quantity")
 
-        product = get_product(pid)
+        # getting the cart if it exists
+        cart = CartController.get(id=cls.sid())
+
+        # get the product
+        product = ProductController.get(id=pid)
+
+        # validate if the quantity is valid
         validate_product_quantity(product, quantity)
 
-        product_cart = upsert_product_cart(sid, pid, product, quantity)
+        # putting the product
+        CartController.put_product(id=cls.sid(), pid=pid, quantity=quantity)
 
-        cart.products.append(product_cart)
-        DbSession.add(product_cart)
-        DbSession.add(cart)
-        DbSession.commit()
-        cart = DbSession.query(CartModel).filter(CartModel.id == sid).one()
-        return resolve_list_product_cart(cart.products)
-
-
-class RemoveProductOfCart(MutationType):
-    class Arguments:
-        product_id = String(required=True)
-
-    Output = List(ProductCart)
-
-    def mutate(self, info, **kwargs):
-        pid = kwargs.get("product_id")
-        sid = str(session["u"])
-        cart = get_cart(sid)
-
-        product_cart = get_product_cart(sid, pid)
-        DbSession.delete(product_cart)
-        DbSession.commit()
-        return resolve_list_product_cart(cart.products)
+        # return the updated cart
+        return PutProductToCart(
+            payload=resolve_list_product_cart(cart.products)
+        )
 
 
-class PayCart(MutationType):
-    class Arguments:
-        payload = PayCartInput(required=True)
+class RemoveProductOfCart(relay.ClientIDMutation, SessionMixin):
+    class Input:
+        id = ID(required=True)
 
-    customer = String()
-    address = Field(Address)
-    total_paid = Float()
-    products_paid = List(ProductCart)
+    payload = List(ProductCart)
 
-    def mutate(self, info, **kwargs):
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **kwargs):
+        # getting the product id
+        pid = decode_id(kwargs.get("id"))
+
+        # getting the cart if it exists
+        cart = CartController.get(id=cls.sid())
+
+        # remove the product
+        CartController.remove_product(id=cls.sid(), pid=pid)
+
+        # return the updated cart
+        return RemoveProductOfCart(
+            payload=resolve_list_product_cart(cart.products)
+        )
+
+
+class PayCart(relay.ClientIDMutation, SessionMixin):
+    class Input:
+        full_name = String(required=True)
+        address = AddressInput(required=True)
+        credit_card = CreditCardInput(required=True)
+
+    payload = Field(PurchaseResult)
+
+    @classmethod
+    def mutate_and_get_payload(cls, root, info, **kwargs):
         # read params
-        payload = kwargs.get("payload")
-        fullname = payload.get("full_name")
-        creditcard_in = payload.get("credit_card")
-        address_in = payload.get("address")
+        fullname = kwargs.get("full_name")
+        creditcard_in = kwargs.get("credit_card")
+        address_in = kwargs.get("address")
         card_number = creditcard_in["card_number"]
 
-        # read cart if exists
-        sid = str(session["u"])
-        cart = get_cart(sid)
+        # getting the cart if it exists
+        cart = CartController.get(id=cls.sid())
 
+        # validate the credit card number
         validate_credit_card(card_number)
 
+        # possible list of paid products
         products_paid = resolve_list_product_cart(cart.products)
 
-        total_paid = pay_products_cart(sid)
+        # processing the payment
+        total_paid = CartController.pay_products(id=cls.sid())
 
         return PayCart(
-            customer=fullname,
-            address=address_in,
-            total_paid=total_paid,
-            products_paid=products_paid,
+            payload=PurchaseResult(
+                customer=fullname,
+                address=address_in,
+                total_paid=total_paid,
+                products_paid=products_paid,
+            )
         )

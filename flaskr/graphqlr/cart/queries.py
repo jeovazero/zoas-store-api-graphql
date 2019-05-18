@@ -1,12 +1,13 @@
 from graphene import List
 from flask import session
 from .types import ProductCart
-from .helpers import resolve_list_product_cart, get_cart
+from .helpers import resolve_list_product_cart
+from flaskr.database import CartController
 
 
 def resolve_cart(root, info):
     sid = str(session["u"])
-    cart = get_cart(sid)
+    cart = CartController.get(id=sid)
     return resolve_list_product_cart(cart.products)
 
 
