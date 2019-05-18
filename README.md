@@ -2,8 +2,8 @@
 
 <div align="center">
 
-[![Build Status](https://travis-ci.com/jeovazero/zoas-store-backend.svg?branch=master)](https://travis-ci.com/jeovazero/zoas-store-backend)
-[![Coverage Status](https://coveralls.io/repos/github/jeovazero/zoas-store-backend/badge.svg?branch=master)](https://coveralls.io/github/jeovazero/zoas-store-backend?branch=master)
+[![Build Status](https://travis-ci.com/jeovazero/zoas-store-api-graphql.svg?branch=master)](https://travis-ci.com/jeovazero/zoas-store-api-graphql)
+[![Coverage Status](https://coveralls.io/repos/github/jeovazero/zoas-store-api-graphql/badge.svg?branch=master)](https://coveralls.io/github/jeovazero/zoas-store-api-graphql?branch=master)
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
