@@ -8,7 +8,11 @@ from ..errors import (
 )
 
 
-def decode_id(s):
+def decode_id(s: str):
+    """
+    Receives a base64 string *s* and decode it, the verify if it is conforms
+    the pattern "name:id"
+    """
     dec = base64.b64decode(s.encode("ascii")).decode("ascii")
     list_dec = dec.split(":")
     if len(list_dec) == 2:
@@ -16,25 +20,39 @@ def decode_id(s):
     raise ZoasError(INVALID_PRODUCT_ID)
 
 
-def b64encode(s):
+def b64encode(s: str):
+    """
+    Encode a string *s* to base64
+    """
     return base64.b64encode(s.encode("ascii")).decode("ascii")
 
 
 def resolve_list_product_cart(products):
+    """
+    Receives a list of products of type ProductCartModel and converts it to
+    ProductCart type of graphql schema
+    """
     ans = []
     for p in products:
         ans.append(ProductCart(p))
     return ans
 
 
-def validate_product_quantity(product, quantity):
+def validate_product_quantity(product, quantity: int):
+    """
+    Receives a ProductModel *product* and a integer *quantity*
+    Verifies if the quantity passed is valid
+    """
     avaliable = product.avaliable
     if quantity <= 0 or quantity > avaliable:
         raise ZoasError(INVALID_PRODUCT_QUANTITY)
 
 
-def validate_credit_card(card):
-    # Luhn algorithm
+def validate_credit_card(card: str):
+    """ Luhn Algorithm
+    Receives a credit card number in string format and
+    verify the validity of it
+    """
     if len(card) != 16:
         raise ZoasError(INVALID_CREDIT_CARD)
     s = 0

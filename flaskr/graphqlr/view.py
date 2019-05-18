@@ -4,6 +4,8 @@ from .errors import ZoasError
 
 
 class ZoasGraphQLView(GraphQLView):
+    """A custom GraphQL view"""
+
     @staticmethod
     def format_error(error):
         try:
