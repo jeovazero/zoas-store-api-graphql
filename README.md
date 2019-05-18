@@ -2,8 +2,8 @@
 
 <div align="center">
 
-[![Build Status](https://travis-ci.com/jeovazero/zoas-store-backend.svg?branch=master)](https://travis-ci.com/jeovazero/zoas-store-backend)
-[![Coverage Status](https://coveralls.io/repos/github/jeovazero/zoas-store-backend/badge.svg?branch=master)](https://coveralls.io/github/jeovazero/zoas-store-backend?branch=master)
+[![Build Status](https://travis-ci.com/jeovazero/zoas-store-api-graphql.svg?branch=master)](https://travis-ci.com/jeovazero/zoas-store-api-graphql)
+[![Coverage Status](https://coveralls.io/repos/github/jeovazero/zoas-store-api-graphql/badge.svg?branch=master)](https://coveralls.io/github/jeovazero/zoas-store-api-graphql?branch=master)
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
@@ -28,12 +28,12 @@ It utilized in the project:
 - Coverage: **Coveralls**
 
 
-**This version is only for tests**
+**This version is only for tests :construction:, not for production**
 
-**In the next release will support Relay**
+**It still has some enhancements to do** :fire:
 
 
-## Scripts
+## Scripts :page_facing_up:
 
 #### `make init`
 > Create a virtual env and install the dependencies of project
@@ -59,6 +59,19 @@ It utilized in the project:
 #### `make genSchema`
 > Generate the _flaskr/graphqlr/schema.graphql_ file
 
+### Environment Variables
+
+The environment variables utilized are:
+
+- POSTGRES_USER
+- POSTGRES_PASSWORD
+- POSTGRES_DB
+- POSTGRES_PORT
+- POSTGRES_HOST
+- FLASK_TESTING
+- FLASK_ENV
+
+
 ## Graphql
 
 `/graphql`
@@ -67,21 +80,155 @@ To see the full schema auto-generated go to [schema.graphql](/flaskr/graphqlr/sc
 
 ```graphql
 type Mutations {
-  createCart: CreateCart
-  deleteCart: DeleteCart
-  putProductToCart(payload: PutProductInput!): [ProductCart]
-  removeProductOfCart(productId: String!): [ProductCart]
-  payCart(payload: PayCartInput!): PayCart
+  createCart(input: CreateCartInput!): CreateCartPayload
+  deleteCart(input: DeleteCartInput!): DeleteCartPayload
+  putProductToCart(input: PutProductToCartInput!): PutProductToCartPayload
+  removeProductOfCart(input: RemoveProductOfCartInput!): RemoveProductOfCartPayload
+  payCart(input: PayCartInput!): PayCartPayload
 }
 
 type Query {
   cart: [ProductCart]
-  product(productId: String!): Item
-  products(offset: Int = 0, limit: Int = 10): Products
+  product(id: ID!): Product
+  products(before: String, after: String, first: Int, last: Int): ProductConnection
+  node(id: ID!): Node
 }
 ```
 
-## Docker
+#### Custom errors
+
+A custom error come in the format:
+> A additional `code` field in the error object
+```
+{
+  "errors": [
+    {
+      "message": "The product quantity must be greater than zero and less than total",
+      "code": "INVALID_PRODUCT_QUANTITY"
+    }
+  ],
+  "data": {
+    "putProductToCart": null
+  }
+}
+```
+
+| Code | Message |
+| ---- | ----- |
+| INVALID_SESSION | "The session has expired or is invalid" |
+| INVALID_PRODUCT_QUANTITY | "The product quantity must be greater than zero and less than total" |
+| INVALID_PRODUCT_ID | "The product with provided id not exist" |
+| INVALID_CREDIT_CARD | "Problems in credit card informations" |
+| LACK_OF_STOCK | "The product 'product_name' has lack in the stock" |
+
+
+## Examples of API use
+
+**1. Get products of store**
+
+```sh
+curl localhost:3000/graphql \
+-H "Content-Type: application/json" \
+-d @- << EOF
+{
+    "query":
+    "query {
+       products(first: 5){
+         pageInfo {
+           hasNextPage
+         }
+         edges{
+           cursor
+           node {
+             title
+             price
+             id
+           }
+         }
+       }
+    }"
+}
+EOF
+```
+> Getting the 5 first items
+
+> This `query products` is a [Relay Connection](https://facebook.github.io/relay/graphql/connections.htm)
+
+**2. Create a cart (session of user)**
+
+```sh
+curl localhost:3000/graphql \
+-c "zoas.cookie" \
+-H "Content-Type: application/json" \
+-d @- << EOF
+{
+    "query":
+    "mutation {
+       createCart(input: { clientMutationId: \"b5e27614-8ee4-47ad-b1b6-60417d41e91c\" }){
+         confirmation
+         clientMutationId
+       }
+    }"
+}
+EOF
+```
+
+> For all mutations you must pass a `clientMutationId` conforms [Relay Input Object Mutation](https://facebook.github.io/relay/graphql/mutations.htm)
+
+> It will create a session for the user creating a cookie
+
+> The browser handle it automatically, but the `curl` command not made this, then use `-c "zoas.cookie"` to create a cookie and `-b "zoas.cookie"` to use the cookie
+
+> All operations using `cart` you must send the cookie (The browser do it automatically)
+
+**3. Put a product in the cart**
+
+```sh
+curl localhost:3000/graphql \
+-b "zoas.cookie" \
+-H "Content-Type: application/json" \
+-d @- << EOF
+{
+    "query":
+    "mutation {
+       putProductToCart(input: {
+         clientMutationId: \"c6e24c6d-d12a-419f-9ad7-d41b81debd04\",
+         id: \"UHJvZHVjdDox\",
+         quantity: 4
+       }){
+         payload {
+            title
+            description
+         }
+         clientMutationId
+       }
+    }"
+}
+EOF
+```
+
+**4. Get the products of cart**
+
+```sh
+curl localhost:3000/graphql \
+-b "zoas.cookie" \
+-H "Content-Type: application/json" \
+-d @- << EOF
+{
+    "query":
+    "query {
+       cart {
+         d
+         title
+         description
+         price
+       }
+    }"
+}
+EOF
+```
+
+## Docker :whale:
 
 #### Building
 
@@ -97,6 +244,10 @@ docker-compose up
 ```
 
 > API Running on: localhost:3000/graphql
+
+> Access it to do interactive graphql queries
+
+> This version is not for production
 
 #
 
