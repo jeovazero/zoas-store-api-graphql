@@ -1,8 +1,9 @@
-from .helpers import get_product, encode_base64
+from .helpers import api
+from .helpers.func import encode_base64
 
 
 def test_query_product(client):
-    resp = get_product(client, pid="4")
+    resp = api.get_product(client, pid="4")
     json = resp.get_json()
 
     product = json["data"]["product"]
@@ -14,7 +15,7 @@ def test_query_product(client):
 
 
 def test_invalid_id(client):
-    resp = get_product(client, pid="99")
+    resp = api.get_product(client, pid="99")
 
     json = resp.get_json()
 

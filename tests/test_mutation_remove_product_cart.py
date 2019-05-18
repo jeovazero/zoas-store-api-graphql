@@ -1,17 +1,28 @@
-from .helpers import _create_cart, _put_products, remove_product_cart, get_uuid
+from .helpers import api
+from .helpers.func import new_uuid, add_fake_cart_products
+from flaskr.database import CartController
 
 
 def test_mutation_remove_product_cart(client):
-    _create_cart(client)
+    # add fake cart with products in database
+    cart_id = add_fake_cart_products(client)
 
-    mutation_id = get_uuid()
-    _put_products(client)
+    # request
+    mutation_id = new_uuid()
+    response = api.remove_product_cart(client, pid="2", uid=mutation_id)
 
-    resp2 = remove_product_cart(client, pid="2", uid=mutation_id)
-    json = resp2.get_json()
+    # json of response
+    json = response.get_json()
+
     cart = json["data"]["removeProductOfCart"]
     product = cart["payload"][0]
     client_mutation_id = cart["clientMutationId"]
+
+    products_db = CartController.get_products(id=cart_id)
+
+    # asserts
+    assert len(products_db) == 1
+    assert products_db[0].product_id == 1
 
     assert len(cart["payload"]) == 1
     assert product["productId"] == 1
@@ -22,17 +33,19 @@ def test_mutation_remove_product_cart(client):
 
 
 def test_invalid_session(client):
-    _create_cart(client)
-
-    mutation_id = get_uuid()
-    _put_products(client)
+    # add fake cart with products in database
+    add_fake_cart_products(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:
-        session["u"] = "fake_session"
+        session["u"] = "invalid_session"
 
-    resp2 = remove_product_cart(client, pid="2", uid=mutation_id)
-    json = resp2.get_json()
+    # request
+    mutation_id = new_uuid()
+    response = api.remove_product_cart(client, pid="2", uid=mutation_id)
+
+    # json of response
+    json = response.get_json()
 
     assert json["data"]["removeProductOfCart"] is None
     assert json["errors"] is not None
@@ -43,13 +56,15 @@ def test_invalid_session(client):
 
 
 def test_invalid_id(client):
-    _create_cart(client)
+    # add fake cart with products in database
+    add_fake_cart_products(client)
 
-    mutation_id = get_uuid()
-    _put_products(client)
+    # request
+    mutation_id = new_uuid()
+    response = api.remove_product_cart(client, pid="9", uid=mutation_id)
 
-    resp2 = remove_product_cart(client, pid="9", uid=mutation_id)
-    json = resp2.get_json()
+    # json of response
+    json = response.get_json()
 
     assert json["data"]["removeProductOfCart"] is None
     assert json["errors"] is not None

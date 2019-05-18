@@ -1,4 +1,4 @@
-from .helpers import encode_base64
+from .helpers.func import encode_base64
 
 
 def test_query_products(client):

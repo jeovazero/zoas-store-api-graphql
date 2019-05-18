@@ -1,30 +1,39 @@
-from .helpers import _create_cart, get_cart, _put_products
+from .helpers import api
+from .helpers.func import add_fake_cart_products
 
 
 def test_query_get_cart(client):
-    _create_cart(client)
-    _put_products(client)
+    # add fake cart with products in database
+    add_fake_cart_products(client)
 
-    resp2 = get_cart(client)
-    json = resp2.get_json()
+    # request
+    response = api.get_cart(client)
+
+    # json of response
+    json = response.get_json()
     cart = json["data"]["cart"]
 
+    # asserts
     assert len(cart) == 2
-    assert cart[0]["productId"] is not None
-    assert cart[1]["productId"] is not None
+    assert cart[0]["productId"] == 1
+    assert cart[1]["productId"] == 2
 
 
 def test_invalid_session(client):
-    _create_cart(client)
-    _put_products(client)
+    # add fake cart with products in database
+    add_fake_cart_products(client)
 
     # Setting the invalid session id
     with client.session_transaction() as session:
         session["u"] = "fake_session"
 
-    resp2 = get_cart(client)
-    json = resp2.get_json()
+    # request
+    response = api.get_cart(client)
 
+    # json of response
+    json = response.get_json()
+
+    # asserts
     assert json["data"]["cart"] is None
     assert json["errors"] is not None
     assert (

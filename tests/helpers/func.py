@@ -3,7 +3,6 @@ import base64
 from flaskr.database import CartController
 import re
 import ast
-from .api import put_product_cart
 
 
 def new_uuid():
@@ -48,14 +47,15 @@ def get_cart_id(session):
 
 
 def add_fake_cart(client):
-    session_id = "fake_session_id"
+    session_id = str(new_uuid())
     CartController.create(id=session_id)
     with client.session_transaction() as session:
         session["u"] = session_id
     return session_id
 
 
-def _put_products(client):
-    mutation_id = new_uuid()
-    put_product_cart(client, pid="2", qtd=10, uid=mutation_id)
-    put_product_cart(client, pid="1", qtd=20, uid=mutation_id)
+def add_fake_cart_products(client):
+    cart_id = add_fake_cart(client)
+    CartController.add_product(id=cart_id, pid="2", quantity=11)
+    CartController.add_product(id=cart_id, pid="1", quantity=20)
+    return cart_id
