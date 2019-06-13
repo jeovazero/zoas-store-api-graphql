@@ -23,7 +23,11 @@ app = Flask(__name__)
 
 # CORS
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*")
-CORS(app, resources={r"/graphql": {"origins": CORS_ORIGINS}})
+CORS(
+    app,
+    supports_credentials=True,
+    resources={r"/graphql": {"origins": CORS_ORIGINS}},
+)
 
 
 # Aditional config
