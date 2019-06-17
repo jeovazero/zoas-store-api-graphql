@@ -1,6 +1,6 @@
 from .helpers import api
 from .helpers.func import get_session, new_uuid, get_cart_id
-from flaskr.database import CartController
+from flaskr.controllers import CartController
 
 
 def test_create_cart(client):

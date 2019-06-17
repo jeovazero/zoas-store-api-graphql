@@ -1,6 +1,6 @@
 from .helpers import api
 from .helpers.func import new_uuid, add_fake_cart_products
-from flaskr.database import CartController
+from flaskr.controllers import CartController
 
 
 def test_mutation_remove_product_cart(client):
