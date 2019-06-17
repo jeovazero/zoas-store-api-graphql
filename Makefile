@@ -38,6 +38,10 @@ gunicorn:
 	$(ACT); FLASK_APP=$(APP_PROD) python3.7 -m flask seed-db
 	$(ACT); gunicorn --bind 0.0.0.0:5000 $(APP_PROD)
 
+run_gunicorn:
+	FLASK_APP=$(APP_PROD) python3.7 -m flask seed-db
+	gunicorn --bind 0.0.0.0:5000 $(APP_PROD)
+
 genSchema:
 	$(ACT); python3.7 scripts/gen_schema.py
 

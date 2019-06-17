@@ -22,7 +22,10 @@ COPY --from=deps /usr/lib/ /usr/lib/
 WORKDIR /zoas-api
 
 COPY ./flaskr /zoas-api/flaskr
+COPY ./Makefile /zoas-api/Makefile
+
+RUN apk add make
 
 EXPOSE 5000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flaskr:create_app('production')"]
+CMD ["make", "run_gunicorn"]
