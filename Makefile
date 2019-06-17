@@ -36,3 +36,7 @@ gunicorn:
 
 genSchema:
 	$(ACT); python3.7 scripts/gen_schema.py
+
+formatterLinter:
+	$(ACT); black flaskr
+	$(ACT); flake8 flaskr
