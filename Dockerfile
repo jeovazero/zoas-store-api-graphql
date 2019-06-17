@@ -11,7 +11,7 @@ WORKDIR /packages
 
 COPY ./requirements.txt .
 
-RUN pip3.7 install -r requirements.txt --prefix=/packages
+RUN pip3.7 install -r requirements.txt --prefix=/packages --no-warn-script-location
 
 
 FROM pyimage
@@ -25,4 +25,4 @@ COPY ./flaskr /zoas-api/flaskr
 
 EXPOSE 5000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flaskr.app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flaskr:create_app('production')"]
