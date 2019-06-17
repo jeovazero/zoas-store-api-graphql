@@ -1,6 +1,12 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, PrimaryKeyConstraint
-from sqlalchemy.orm import relationship
-from ..base import Base
+from .alias import (
+    Base,
+    Column,
+    Integer,
+    String,
+    relationship,
+    PrimaryKeyConstraint,
+    ForeignKey,
+)
 
 
 class ProductCartModel(Base):

@@ -1,6 +1,4 @@
-from sqlalchemy import Column, String
-from sqlalchemy.orm import relationship
-from ..base import Base
+from .alias import Base, Column, relationship, String
 
 
 class CartModel(Base):

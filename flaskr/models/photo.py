@@ -1,5 +1,4 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
-from ..base import Base
+from .alias import Base, Column, Integer, String, ForeignKey
 
 
 class PhotoModel(Base):
