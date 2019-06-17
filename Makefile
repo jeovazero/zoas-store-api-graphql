@@ -17,22 +17,22 @@ upgradeInstall:
 	$(ACT); $(FREEZE)
 
 start:
-	$(ACT); FLASK_APP=flaskr/app.py FLASK_ENV=development python3.7 -m flask run
+	$(ACT); FLASK_APP="flaskr:create_app('development')" python3.7 -m flask run
 
 freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
 
 test:
-	$(ACT); FLASK_TESTING=True pytest -vs
+	$(ACT); pytest -vs
 
 testCoverage:
-	${ACT}; FLASK_TESTING=True pytest -vs --cov=flaskr
+	${ACT}; pytest -vs --cov=flaskr
 
 _install:
 	pip3.7 install -r $(REQ)
 
-gunicorn: # TESTING only to seed the database, remove it in for production :)
-	$(ACT); FLASK_TESTING=True gunicorn --bind 0.0.0.0:5000 flaskr.app:app
+gunicorn:
+	$(ACT); gunicorn --bind 0.0.0.0:5000 "flaskr:create_app('production')"
 
 genSchema:
 	$(ACT); python3.7 scripts/gen_schema.py

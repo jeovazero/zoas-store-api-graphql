@@ -1,5 +1,5 @@
 import pytest
-from flaskr.app import app
+from flaskr import create_app
 from flaskr.database import CartController
 
 
@@ -10,4 +10,5 @@ def setup_function(request):
 
 @pytest.fixture
 def client():
+    app = create_app("Testing")
     return app.test_client()
