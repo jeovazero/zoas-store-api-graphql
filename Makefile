@@ -2,6 +2,8 @@ ACT=. env/bin/activate
 REQF=requirements-to-freeze.txt
 REQ=requirements.txt
 FREEZE=pip3.7 freeze -r $(REQF) > $(REQ)
+APP_DEV="flaskr:create_app('development')"
+APP_PROD="flaskr:create_app('production')"
 
 init: createenv install
 
@@ -17,7 +19,8 @@ upgradeInstall:
 	$(ACT); $(FREEZE)
 
 start:
-	$(ACT); FLASK_APP="flaskr:create_app('development')" python3.7 -m flask run
+	$(ACT); FLASK_APP=$(APP_DEV) flask seed-db
+	$(ACT); FLASK_APP=$(APP_DEV) flask run
 
 freeze:
 	$(ACT); $(FREEZE); echo "Freezing done!"
@@ -32,7 +35,8 @@ _install:
 	pip3.7 install -r $(REQ)
 
 gunicorn:
-	$(ACT); gunicorn --bind 0.0.0.0:5000 "flaskr:create_app('production')"
+	$(ACT); FLASK_APP=$(APP_PROD) python3.7 -m flask seed-db
+	$(ACT); gunicorn --bind 0.0.0.0:5000 $(APP_PROD)
 
 genSchema:
 	$(ACT); python3.7 scripts/gen_schema.py

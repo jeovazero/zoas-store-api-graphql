@@ -21,10 +21,11 @@ def create_app(env="Production"):
     # to avoid circular dependencies
     from .graphqlr.view import ZoasGraphQLView
     from .graphqlr.schema import schema
-    from .seed import seed
 
-    # Seed temporary
-    seed(app)
+    # add seed-db command
+    from .seed import seed_command
+
+    app.cli.add_command(seed_command)
 
     # CORS
     CORS_ORIGINS = app.config["CORS_ORIGINS"]
