@@ -1,6 +1,6 @@
 from .helpers import api
 from .helpers.func import new_uuid, add_fake_cart_products
-from flaskr.database import CartController, ProductController, seed
+from flaskr.controllers import CartController, ProductController
 import copy
 
 
@@ -37,10 +37,6 @@ joao_fake["creditCard"] = {
     "expirationDate": "01/27",
     "cvv": "123",
 }
-
-
-def setup_function(function):
-    seed()
 
 
 def test_pay_cart(client):

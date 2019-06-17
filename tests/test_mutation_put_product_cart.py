@@ -1,6 +1,6 @@
 from .helpers import api
 from .helpers.func import add_fake_cart, new_uuid
-from flaskr.database import CartController
+from flaskr.controllers import CartController
 
 
 def test_put_product(client):

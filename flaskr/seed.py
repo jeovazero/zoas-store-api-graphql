@@ -1,7 +1,10 @@
 from .models import ProductModel, PhotoModel
-from .base import Session, engine, Base
 import json
+import click
 from os import path
+from flask import current_app
+from flask.cli import with_appcontext
+from flaskr import db
 
 SEED_FOLDER = path.dirname(path.abspath(__file__))
 data_filename = path.join(SEED_FOLDER, "seed.data.json")
@@ -19,10 +22,12 @@ def to_product_model(product):
     )
 
 
-def seed():
-    print("SEED DB")
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+@click.command("seed-db")
+@with_appcontext
+def seed_command():
+    db.init_app(current_app)
+    db.drop_all()
+    db.create_all()
 
     with open(data_filename) as data:
         products_data = json.load(data)
@@ -30,8 +35,9 @@ def seed():
     products = [to_product_model(p) for p in products_data]
 
     for product in products:
-        Session.add(product)
+        db.session.add(product)
         for photo in product.photos:
-            Session.add(photo)
+            db.session.add(photo)
 
-    Session.commit()
+    db.session.commit()
+    print("seed Done!")

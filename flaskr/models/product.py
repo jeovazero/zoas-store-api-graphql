@@ -1,6 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, Boolean
-from sqlalchemy.orm import relationship
-from ..base import Base
+from .alias import Base, Column, Integer, String, Float, Boolean, relationship
 
 
 class ProductModel(Base):

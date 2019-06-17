@@ -1,6 +1,6 @@
 from .helpers.func import new_uuid, get_session, add_fake_cart
 from .helpers import api
-from flaskr.database import CartController
+from flaskr.controllers import CartController
 
 
 def test_delete_cart(client):

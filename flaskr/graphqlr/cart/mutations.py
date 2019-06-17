@@ -1,5 +1,5 @@
 from graphene import List, String, Field, relay, ID, Int
-from flaskr.database import CartController, ProductController
+from flaskr.controllers import CartController, ProductController
 from ..mixins import SessionMixin
 from .types import ProductCart, PurchaseResult, AddressInput, CreditCardInput
 from .helpers import (

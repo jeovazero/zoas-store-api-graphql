@@ -1,6 +1,6 @@
 from graphene import relay
 from graphene_sqlalchemy import SQLAlchemyObjectType
-from flaskr.database import ProductModel, PhotoModel
+from flaskr.models import ProductModel, PhotoModel
 
 # from ..errors import INVALID_PRODUCT_ID
 

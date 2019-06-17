@@ -11,9 +11,7 @@
 
 A project of api graphql for a fictitious ecommerce (Zoas Store)
 
-For learning of some libs and best practices of python ecosystem
-
-It utilized in the project:
+It used in the project:
 
 - Lang: **Python3.7**
 - Framework: **Flask**
@@ -59,17 +57,19 @@ It utilized in the project:
 #### `make genSchema`
 > Generate the _flaskr/graphqlr/schema.graphql_ file
 
+#### `make formatterLinter`
+> Run the `black` and `flake8`
+
+
 ### Environment Variables
 
-The environment variables utilized are:
+The environment variables used are:
 
 - POSTGRES_USER
 - POSTGRES_PASSWORD
 - POSTGRES_DB
 - POSTGRES_PORT
 - POSTGRES_HOST
-- FLASK_TESTING
-- FLASK_ENV
 
 
 ## Graphql
@@ -98,7 +98,7 @@ type Query {
 #### Custom errors
 
 A custom error come in the format:
-> A additional `code` field in the error object
+> An additional `code` field in the error object
 ```
 {
   "errors": [
@@ -218,7 +218,7 @@ curl localhost:3000/graphql \
     "query":
     "query {
        cart {
-         d
+         id
          title
          description
          price

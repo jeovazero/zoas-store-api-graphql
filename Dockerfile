@@ -11,7 +11,7 @@ WORKDIR /packages
 
 COPY ./requirements.txt .
 
-RUN pip3.7 install -r requirements.txt --prefix=/packages
+RUN pip3.7 install -r requirements.txt --prefix=/packages --no-warn-script-location
 
 
 FROM pyimage
@@ -22,7 +22,10 @@ COPY --from=deps /usr/lib/ /usr/lib/
 WORKDIR /zoas-api
 
 COPY ./flaskr /zoas-api/flaskr
+COPY ./Makefile /zoas-api/Makefile
+
+RUN apk add make
 
 EXPOSE 5000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "flaskr.app:app"]
+CMD ["make", "run_gunicorn"]

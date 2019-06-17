@@ -9,8 +9,10 @@ from graphene import (
     Field,
 )
 from ..mixins import SessionMixin
-from flaskr.database import ProductCartModel
-from flaskr.database import Session as DbSession
+from flaskr.models import ProductCartModel
+from flaskr import db
+
+DbSession = db.session
 
 
 class PhotoProductCart(ObjectType):

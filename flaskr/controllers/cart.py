@@ -1,7 +1,6 @@
 from ..models import CartModel, ProductCartModel
 from .product import ProductController
-from .. import Session
-import os
+from flaskr import db
 from flaskr.graphqlr.errors import (
     INVALID_SESSION,
     INVALID_PRODUCT_ID,
@@ -10,7 +9,7 @@ from flaskr.graphqlr.errors import (
 )
 
 
-IS_TESTING = os.getenv("FLASK_TESTING", False)
+Session = db.session
 
 
 class CartController:

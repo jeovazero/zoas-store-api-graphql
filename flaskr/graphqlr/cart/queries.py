@@ -2,7 +2,7 @@ from graphene import List
 from flask import session
 from .types import ProductCart
 from .helpers import resolve_list_product_cart
-from flaskr.database import CartController
+from flaskr.controllers import CartController
 
 
 def resolve_cart(root, info):

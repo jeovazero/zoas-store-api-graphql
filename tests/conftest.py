@@ -1,13 +1,23 @@
 import pytest
-from flaskr.app import app
-from flaskr.database import CartController
-
-
-@pytest.fixture(autouse=True, scope="function")
-def setup_function(request):
-    CartController.drop()
+from flaskr import create_app
+from flaskr.seed import seed_command
 
 
 @pytest.fixture
 def client():
-    return app.test_client()
+    app = create_app("Testing")
+    client = app.test_client()
+
+    # pushing the context
+    ctx = app.app_context()
+    ctx.push()
+
+    # runner for cli command
+    runner = app.test_cli_runner()
+
+    # invoke the seed-db command
+    runner.invoke(seed_command)
+
+    yield client
+
+    ctx.pop()
