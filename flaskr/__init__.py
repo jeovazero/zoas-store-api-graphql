@@ -1,8 +1,8 @@
 from flask import Flask
-from flaskr.graphqlr.view import ZoasGraphQLView
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from .graphqlr import schema
-from .database import seed
+
+db = SQLAlchemy()
 
 
 def create_app(env="Production"):
@@ -15,15 +15,22 @@ def create_app(env="Production"):
     app = Flask(__name__)
     app.config.from_object(configName)
 
+    # Database
+    db.init_app(app)
+
+    # to avoid circular dependencies
+    from .graphqlr.view import ZoasGraphQLView
+    from .graphqlr.schema import schema
+    from .seed import seed
+
     # Seed temporary
-    # TODO: move it to a script
-    seed()
+    seed(app)
 
     # CORS
     CORS_ORIGINS = app.config["CORS_ORIGINS"]
     CORS(
         app,
-        supports_credentials=True,
+        supports_credentials=True,  # important for cookies
         resources={r"/graphql": {"origins": CORS_ORIGINS}},
     )
 

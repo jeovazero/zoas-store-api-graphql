@@ -1,6 +1,9 @@
 from ..models import ProductModel
-from .. import Session
+from flaskr import db
 from flaskr.graphqlr.errors import INVALID_PRODUCT_ID, ZoasError
+
+
+Session = db.session
 
 
 class ProductController:
