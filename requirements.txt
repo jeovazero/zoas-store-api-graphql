@@ -50,5 +50,5 @@ six==1.12.0
 toml==0.10.0
 virtualenv==16.5.0
 wcwidth==0.1.7
-Werkzeug==0.15.2
+Werkzeug==0.15.3
 zipp==0.3.3
