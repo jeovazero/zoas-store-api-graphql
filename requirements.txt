@@ -43,7 +43,7 @@ py==1.8.0
 pycodestyle==2.5.0
 pyflakes==2.1.1
 pyparsing==2.4.0
-PyYAML==5.1
+PyYAML==5.4
 Rx==1.6.1
 singledispatch==3.4.0.3
 six==1.12.0
