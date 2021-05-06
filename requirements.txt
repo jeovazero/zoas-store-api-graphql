@@ -6,7 +6,7 @@ psycopg2-binary==2.8.3
 graphene==2.1.6
 graphene-sqlalchemy==2.2.0
 gunicorn==19.9.0
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 Flask-SQLAlchemy==2.4.0
 
 # dev
